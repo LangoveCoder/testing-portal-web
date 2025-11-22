@@ -47,96 +47,240 @@ class ResultController extends Controller
         ]);
 
         try {
-            DB::beginTransaction();
-
-            // Load Excel file
             $file = $request->file('result_file');
             $spreadsheet = IOFactory::load($file->getPathname());
-            $worksheet = $spreadsheet->getActiveSheet();
-            $rows = $worksheet->toArray();
+            $sheet = $spreadsheet->getActiveSheet();
+            $rows = $sheet->toArray();
 
-            // Remove header row
-            array_shift($rows);
+            // Remove header
+            $headers = array_shift($rows);
 
             $successCount = 0;
             $errorCount = 0;
             $errors = [];
+            $warnings = [];
+
+            // Determine test mode and expected columns
+            $expectedColumns = $this->getExpectedColumns($test->test_mode);
+            
+            // Validate header
+            if (!$this->validateHeaders($headers, $expectedColumns)) {
+                return back()->with('error', 'Invalid Excel format. Expected columns: ' . implode(', ', $expectedColumns));
+            }
+
+            DB::beginTransaction();
 
             foreach ($rows as $index => $row) {
-                $rowNumber = $index + 2; // +2 because we removed header and Excel starts at 1
+                $rowNumber = $index + 2;
 
                 // Skip empty rows
                 if (empty(array_filter($row))) {
                     continue;
                 }
 
-                $rollNumber = $row[0] ?? null;
+                // Extract data based on test mode
+                $rollNumber = isset($row[0]) ? trim($row[0]) : '';
+                $uploadedBookColor = isset($row[1]) ? trim($row[1]) : '';
 
-                if (!$rollNumber) {
-                    $errors[] = "Row {$rowNumber}: Roll number is missing";
+                if (empty($rollNumber)) {
+                    $errors[] = "Row {$rowNumber}: Roll number is required";
+                    $errorCount++;
+                    continue;
+                }
+
+                if (empty($uploadedBookColor)) {
+                    $errors[] = "Row {$rowNumber}: Book color is required";
                     $errorCount++;
                     continue;
                 }
 
                 // Find student by roll number
-                $student = Student::where('test_id', $test->id)
-                    ->where('roll_number', $rollNumber)
+                $student = Student::where('roll_number', $rollNumber)
+                    ->where('test_id', $test->id)
                     ->first();
 
                 if (!$student) {
-                    $errors[] = "Row {$rowNumber}: Student with roll number {$rollNumber} not found";
+                    $errors[] = "Row {$rowNumber}: Roll number {$rollNumber} not found in system";
                     $errorCount++;
                     continue;
                 }
 
-                // Process based on test mode
-                try {
-                    $resultData = $this->processResultRow($row, $test->test_mode, $student->id, $rollNumber);
-                    
-                    // Create or update result
-                    Result::updateOrCreate(
-                        [
-                            'student_id' => $student->id,
-                            'test_id' => $test->id,
-                        ],
-                        $resultData
-                    );
-
-                    $successCount++;
-                } catch (\Exception $e) {
-                    $errors[] = "Row {$rowNumber}: " . $e->getMessage();
+                // ===== CRITICAL: VALIDATE BOOK COLOR MATCH =====
+                if (strcasecmp($uploadedBookColor, $student->book_color) !== 0) {
+                    $errors[] = "Row {$rowNumber}: Book color mismatch! Roll {$rollNumber} was assigned '{$student->book_color}' but uploaded as '{$uploadedBookColor}'";
                     $errorCount++;
+                    continue;
                 }
+
+                // Check if result already exists
+                if (Result::where('student_id', $student->id)->exists()) {
+                    $warnings[] = "Row {$rowNumber}: Result for roll {$rollNumber} already exists (will be updated)";
+                }
+
+                // Parse marks based on test mode
+                $resultData = [
+                    'test_id' => $test->id,
+                    'student_id' => $student->id,
+                    'roll_number' => $rollNumber,
+                    'book_color' => $student->book_color, // Use student's assigned color
+                    'total_marks' => $test->total_marks,
+                    'is_published' => false,
+                ];
+
+                if ($test->test_mode === 'mode_1') {
+                    // MCQ + Subjective (8 subject columns - NO TOTAL COLUMN)
+                    $resultData['english_obj'] = isset($row[2]) ? (int)$row[2] : 0;
+                    $resultData['urdu_obj'] = isset($row[3]) ? (int)$row[3] : 0;
+                    $resultData['math_obj'] = isset($row[4]) ? (int)$row[4] : 0;
+                    $resultData['science_obj'] = isset($row[5]) ? (int)$row[5] : 0;
+                    $resultData['english_subj'] = isset($row[6]) ? (int)$row[6] : 0;
+                    $resultData['urdu_subj'] = isset($row[7]) ? (int)$row[7] : 0;
+                    $resultData['math_subj'] = isset($row[8]) ? (int)$row[8] : 0;
+                    $resultData['science_subj'] = isset($row[9]) ? (int)$row[9] : 0;
+                    
+                    // AUTO-CALCULATE TOTAL
+                    $resultData['marks'] = $resultData['english_obj'] + $resultData['urdu_obj'] + 
+                                          $resultData['math_obj'] + $resultData['science_obj'] +
+                                          $resultData['english_subj'] + $resultData['urdu_subj'] + 
+                                          $resultData['math_subj'] + $resultData['science_subj'];
+                    
+                    // Calculate totals per subject
+                    $resultData['english'] = $resultData['english_obj'] + $resultData['english_subj'];
+                    $resultData['urdu'] = $resultData['urdu_obj'] + $resultData['urdu_subj'];
+                    $resultData['math'] = $resultData['math_obj'] + $resultData['math_subj'];
+                    $resultData['science'] = $resultData['science_obj'] + $resultData['science_subj'];
+                    
+                } elseif ($test->test_mode === 'mode_2') {
+                    // MCQ Only (4 subject columns - NO TOTAL COLUMN)
+                    $resultData['english'] = isset($row[2]) ? (int)$row[2] : 0;
+                    $resultData['urdu'] = isset($row[3]) ? (int)$row[3] : 0;
+                    $resultData['math'] = isset($row[4]) ? (int)$row[4] : 0;
+                    $resultData['science'] = isset($row[5]) ? (int)$row[5] : 0;
+                    
+                    // AUTO-CALCULATE TOTAL
+                    $resultData['marks'] = $resultData['english'] + $resultData['urdu'] + 
+                                          $resultData['math'] + $resultData['science'];
+                    
+                } else {
+                    // Mode 3 - General (only total - user provides this)
+                    $resultData['marks'] = isset($row[2]) ? (int)$row[2] : 0;
+                }
+
+                // Validate marks don't exceed total
+                if ($resultData['marks'] > $test->total_marks) {
+                    $errors[] = "Row {$rowNumber}: Total marks ({$resultData['marks']}) exceed maximum ({$test->total_marks})";
+                    $errorCount++;
+                    continue;
+                }
+
+                // Update or create result
+                Result::updateOrCreate(
+                    ['student_id' => $student->id],
+                    $resultData
+                );
+
+                $successCount++;
             }
 
-            // Log the upload
+            DB::commit();
+
+            // Log the action
             AuditLog::logAction(
                 'super_admin',
                 Auth::guard('super_admin')->id(),
                 'uploaded',
                 'Result',
                 $test->id,
-                "Uploaded results for test: {$test->college->name} - {$test->test_date->format('d M Y')}. Success: {$successCount}, Errors: {$errorCount}",
+                "Uploaded results for test: {$test->test_date->format('d M Y')} - Success: {$successCount}, Errors: {$errorCount}",
                 null,
-                ['success_count' => $successCount, 'error_count' => $errorCount]
+                ['test_id' => $test->id, 'success' => $successCount, 'errors' => $errorCount]
             );
 
-            DB::commit();
-
-            $message = "Results uploaded successfully! {$successCount} records processed.";
+            // Prepare response
+            $message = "Upload completed! Successfully uploaded {$successCount} results.";
             if ($errorCount > 0) {
-                $message .= " {$errorCount} errors found.";
+                $message .= " {$errorCount} results had errors.";
             }
 
             return redirect()->route('super-admin.results.show', $test)
-                ->with('success', $message)
-                ->with('errors', $errors);
+                ->with([
+                    'success' => $message,
+                    'upload_report' => [
+                        'success_count' => $successCount,
+                        'error_count' => $errorCount,
+                        'errors' => $errors,
+                        'warnings' => $warnings,
+                    ]
+                ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Error uploading results: ' . $e->getMessage());
+            return back()->with('error', 'Error uploading results: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Get expected columns based on test mode
+     * UPDATED: Removed "Total" column - system calculates automatically
+     */
+    private function getExpectedColumns($testMode)
+    {
+        if ($testMode === 'mode_1') {
+            return [
+                'Roll Number', 
+                'Book Color', 
+                'English Obj', 
+                'Urdu Obj', 
+                'Math Obj ', 
+                'Science Obj ',
+                'English Subj', 
+                'Urdu Subj', 
+                'Math Subj', 
+                'Science Subj'
+                // REMOVED: 'Total' - system calculates this automatically
+            ];
+        } elseif ($testMode === 'mode_2') {
+            return [
+                'Roll Number', 
+                'Book Color', 
+                'English', 
+                'Urdu', 
+                'Math', 
+                'Science'
+                // REMOVED: 'Total' - system calculates this automatically
+            ];
+        } else {
+            // Mode 3 - Keep total as user provides it
+            return [
+                'Roll Number', 
+                'Book Color', 
+                'Total'
+            ];
+        }
+    }
+
+    /**
+     * Validate Excel headers
+     */
+    private function validateHeaders($headers, $expectedColumns)
+    {
+        // Normalize headers (trim and case-insensitive)
+        $normalizedHeaders = array_map(function($h) {
+            return strtolower(trim($h ?? ''));
+        }, $headers);
+
+        $normalizedExpected = array_map(function($h) {
+            return strtolower(trim($h));
+        }, $expectedColumns);
+
+        // Check if all expected columns are present
+        foreach ($normalizedExpected as $index => $expected) {
+            if (!isset($normalizedHeaders[$index]) || $normalizedHeaders[$index] !== $expected) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // Show results for a test
@@ -221,49 +365,4 @@ class ResultController extends Controller
         return redirect()->route('super-admin.results.index')
             ->with('success', "All results deleted successfully! {$count} results removed.");
     }
-
-    // Helper method to process result row based on test mode
-// Helper method to process result row based on test mode
-// Helper method to process result row based on test mode
-private function processResultRow($row, $testMode, $studentId, $rollNumber)
-{
-    $baseData = [
-        'student_id' => $studentId,
-        'roll_number' => $rollNumber,
-    ];
-    
-    switch ($testMode) {
-        case 'mode_1': // MCQ and Subjective
-            return array_merge($baseData, [
-                'english_obj' => $row[1] ?? 0,
-                'urdu_obj' => $row[2] ?? 0,
-                'math_obj' => $row[3] ?? 0,
-                'science_obj' => $row[4] ?? 0,
-                'english_subj' => $row[5] ?? 0,
-                'urdu_subj' => $row[6] ?? 0,
-                'math_subj' => $row[7] ?? 0,
-                'science_subj' => $row[8] ?? 0,
-                'total_marks' => ($row[1] ?? 0) + ($row[2] ?? 0) + ($row[3] ?? 0) + ($row[4] ?? 0) + 
-                               ($row[5] ?? 0) + ($row[6] ?? 0) + ($row[7] ?? 0) + ($row[8] ?? 0),
-            ]);
-
-        case 'mode_2': // MCQ Only
-            return array_merge($baseData, [
-                'english' => $row[1] ?? 0,
-                'urdu' => $row[2] ?? 0,
-                'math' => $row[3] ?? 0,
-                'science' => $row[4] ?? 0,
-                'total_marks' => ($row[1] ?? 0) + ($row[2] ?? 0) + ($row[3] ?? 0) + ($row[4] ?? 0),
-            ]);
-
-        case 'mode_3': // General MCQ
-            return array_merge($baseData, [
-                'marks' => $row[1] ?? 0,
-                'total_marks' => $row[1] ?? 0,
-            ]);
-
-        default:
-            throw new \Exception("Unknown test mode: {$testMode}");
-    }
 }
-    }

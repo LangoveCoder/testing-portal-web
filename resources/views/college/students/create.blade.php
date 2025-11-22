@@ -163,6 +163,19 @@
                         </select>
                     </div>
 
+                    <!-- Disability (NEW) -->
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                            Disability <span class="text-red-500">*</span>
+                        </label>
+                        <select name="disability" required
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">
+                            <option value="">Select Option</option>
+                            <option value="No" {{ old('disability') == 'No' ? 'selected' : '' }}>No</option>
+                            <option value="Yes" {{ old('disability') == 'Yes' ? 'selected' : '' }}>Yes</option>
+                        </select>
+                    </div>
+
                     <!-- Date of Birth -->
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2">
@@ -190,7 +203,7 @@
                         <label class="block text-gray-700 text-sm font-bold mb-2">
                             Province <span class="text-red-500">*</span>
                         </label>
-                        <select name="province" id="province" required onchange="toggleDivision()"
+                        <select name="province" id="province" required onchange="handleProvinceChange()"
                                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">
                             <option value="">Select Province</option>
                             <option value="Balochistan" {{ old('province') == 'Balochistan' ? 'selected' : '' }}>Balochistan</option>
@@ -206,29 +219,34 @@
                     <!-- Division (Only for Balochistan) -->
                     <div id="divisionContainer" style="display: none;">
                         <label class="block text-gray-700 text-sm font-bold mb-2">
-                            Division
+                            Division <span class="text-red-500" id="divisionRequired">*</span>
                         </label>
-                        <select name="division" id="division"
+                        <select name="division" id="division" onchange="loadDistricts()"
                                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">
                             <option value="">Select Division</option>
-                            <option value="Quetta" {{ old('division') == 'Quetta' ? 'selected' : '' }}>Quetta</option>
-                            <option value="Kalat" {{ old('division') == 'Kalat' ? 'selected' : '' }}>Kalat</option>
-                            <option value="Makran" {{ old('division') == 'Makran' ? 'selected' : '' }}>Makran</option>
-                            <option value="Nasirabad" {{ old('division') == 'Nasirabad' ? 'selected' : '' }}>Nasirabad</option>
-                            <option value="Rakhshan" {{ old('division') == 'Rakhshan' ? 'selected' : '' }}>Rakhshan</option>
-                            <option value="Sibi" {{ old('division') == 'Sibi' ? 'selected' : '' }}>Sibi</option>
-                            <option value="Zhob" {{ old('division') == 'Zhob' ? 'selected' : '' }}>Zhob</option>
-                            <option value="Loralai" {{ old('division') == 'Loralai' ? 'selected' : '' }}>Loralai</option>
+                            <option value="Quetta Division" {{ old('division') == 'Quetta Division' ? 'selected' : '' }}>Quetta Division</option>
+                            <option value="Kalat Division" {{ old('division') == 'Kalat Division' ? 'selected' : '' }}>Kalat Division</option>
+                            <option value="Makran Division" {{ old('division') == 'Makran Division' ? 'selected' : '' }}>Makran Division</option>
+                            <option value="Nasirabad Division" {{ old('division') == 'Nasirabad Division' ? 'selected' : '' }}>Nasirabad Division</option>
+                            <option value="Rakhshan Division" {{ old('division') == 'Rakhshan Division' ? 'selected' : '' }}>Rakhshan Division</option>
+                            <option value="Sibi Division" {{ old('division') == 'Sibi Division' ? 'selected' : '' }}>Sibi Division</option>
+                            <option value="Zhob Division" {{ old('division') == 'Zhob Division' ? 'selected' : '' }}>Zhob Division</option>
+                            <option value="Loralai Division" {{ old('division') == 'Loralai Division' ? 'selected' : '' }}>Loralai Division</option>
                         </select>
                     </div>
 
                     <!-- District -->
-                    <div>
+                    <div id="districtContainer">
                         <label class="block text-gray-700 text-sm font-bold mb-2">
                             District <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="district" value="{{ old('district') }}" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">
+                        <select name="district" id="district" style="display: none;"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">
+                            <option value="">Select Division First</option>
+                        </select>
+                        <input type="text" name="district_text" id="district_text" value="{{ old('district') }}"
+                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500"
+                               placeholder="Enter District">
                     </div>
 
                     <!-- Address -->
@@ -258,19 +276,74 @@
 </div>
 
 <script>
-function toggleDivision() {
+// Balochistan divisions and their districts
+const balochistanDistricts = {
+    'Quetta Division': ['Quetta', 'Pishin', 'Killa Abdullah', 'Chagai', 'Nushki', 'Chaman'],
+    'Kalat Division': ['Kalat', 'Mastung', 'Khuzdar', 'Awaran', 'Hub', 'Lasbela', 'Kharan', 'Washuk', 'Surab'],
+    'Makran Division': ['Turbat', 'Kech', 'Gwadar', 'Panjgur'],
+    'Nasirabad Division': ['Nasirabad', 'Jaffarabad', 'Jhal Magsi', 'Kachhi', 'Sohbatpur'],
+    'Sibi Division': ['Sibi', 'Kohlu', 'Dera Bugti', 'Ziarat', 'Harnai', 'Lehri'],
+    'Zhob Division': ['Zhob', 'Sherani', 'Killa Saifullah', 'Musakhel'],
+    'Loralai Division': ['Loralai', 'Barkhan', 'Duki'],
+    'Rakhshan Division': ['Kharan', 'Washuk', 'Chagai']
+};
+
+function handleProvinceChange() {
     const province = document.getElementById('province').value;
     const divisionContainer = document.getElementById('divisionContainer');
     const divisionSelect = document.getElementById('division');
+    const districtDropdown = document.getElementById('district');
+    const districtText = document.getElementById('district_text');
     
     if (province === 'Balochistan') {
+        // Show division dropdown for Balochistan
         divisionContainer.style.display = 'block';
         divisionSelect.required = true;
+        
+        // Hide text input, prepare for dropdown
+        districtText.style.display = 'none';
+        districtText.required = false;
+        districtText.value = '';
+        
+        // Show district dropdown (will populate when division is selected)
+        districtDropdown.style.display = 'block';
+        districtDropdown.required = true;
+        districtDropdown.innerHTML = '<option value="">Select Division First</option>';
+        
     } else {
+        // Hide division for other provinces
         divisionContainer.style.display = 'none';
         divisionSelect.required = false;
         divisionSelect.value = '';
+        
+        // Show text input for district
+        districtText.style.display = 'block';
+        districtText.required = true;
+        
+        // Hide dropdown
+        districtDropdown.style.display = 'none';
+        districtDropdown.required = false;
+        districtDropdown.value = '';
     }
+}
+
+function loadDistricts() {
+    const division = document.getElementById('division').value;
+    const districtDropdown = document.getElementById('district');
+    
+    if (!division) {
+        districtDropdown.innerHTML = '<option value="">Select Division First</option>';
+        return;
+    }
+    
+    const districts = balochistanDistricts[division] || [];
+    
+    let html = '<option value="">Select District</option>';
+    districts.forEach(district => {
+        html += `<option value="${district}">${district}</option>`;
+    });
+    
+    districtDropdown.innerHTML = html;
 }
 
 async function loadTestDistricts() {
@@ -319,12 +392,45 @@ function previewImage(event) {
     }
 }
 
+// Before form submit, handle district field properly
+document.getElementById('studentForm').addEventListener('submit', function(e) {
+    const province = document.getElementById('province').value;
+    const districtDropdown = document.getElementById('district');
+    const districtText = document.getElementById('district_text');
+    
+    if (province === 'Balochistan') {
+        // Use dropdown value, set text input with same value (for backend compatibility)
+        districtText.value = districtDropdown.value;
+        districtText.name = 'district'; // Ensure correct field name
+        districtDropdown.removeAttribute('name'); // Remove name from dropdown to avoid duplicate
+    } else {
+        // Use text input value
+        districtText.name = 'district';
+        districtDropdown.removeAttribute('name');
+    }
+});
+
 // Run on page load
 document.addEventListener('DOMContentLoaded', function() {
-    toggleDivision();
+    handleProvinceChange();
+    
     const testId = document.getElementById('test_id').value;
     if (testId) {
         loadTestDistricts();
+    }
+    
+    // If division is already selected (from old() values), load districts
+    const division = document.getElementById('division').value;
+    if (division) {
+        loadDistricts();
+        
+        // If district was also selected, restore it
+        const oldDistrict = "{{ old('district') }}";
+        if (oldDistrict) {
+            setTimeout(() => {
+                document.getElementById('district').value = oldDistrict;
+            }, 100);
+        }
     }
 });
 </script>

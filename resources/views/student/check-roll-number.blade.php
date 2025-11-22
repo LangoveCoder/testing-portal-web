@@ -151,16 +151,24 @@
                     </div>
                 </div>
 
-                <!-- Download Button (Future Feature) -->
-                <div class="mt-6">
-                    <button disabled class="w-full bg-gray-300 text-gray-500 font-bold py-2 px-4 rounded cursor-not-allowed">
-                        📄 Download Roll Number Slip (Coming Soon)
-                    </button>
-                </div>
-            </div>
-            @endif
-        </div>
-
+                <!-- Download Roll Slip Button -->
+<div class="text-center mt-8 pt-6 border-t-2 border-gray-200">
+    <form action="{{ route('student.roll-slip.download') }}" method="POST">
+        @csrf
+        <input type="hidden" name="cnic" value="{{ $student->cnic }}">
+        <input type="hidden" name="registration_id" value="{{ $student->registration_id }}">
+        <button type="submit" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 px-8 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center mx-auto">
+            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            Download Roll Number Slip (PDF)
+        </button>
+    </form>
+    <p class="text-xs text-gray-500 mt-3">
+        📄 Download and print your roll number slip to bring on test day
+    </p>
+</div>
+ @endif
         <!-- Other Links -->
         <div class="mt-6 text-center">
             <a href="{{ route('student.check-result') }}" class="text-white hover:text-gray-200 font-medium">

@@ -176,7 +176,8 @@ class BulkUploadController extends Controller
             'Khuzdar', 'Killa Abdullah', 'Killa Saifullah', 'Kohlu', 'Lasbela', 
             'Lehri', 'Loralai', 'Mastung', 'Musakhel', 'Nasirabad', 'Nushki', 
             'Panjgur', 'Pishin', 'Quetta', 'Sherani', 'Sibi', 'Sohbatpur', 
-            'Washuk', 'Zhob', 'Ziarat'
+            'Washuk', 'Zhob', 'Ziarat', 'Punjab', 'Sindh', 'Khyber Pakhtunkhwa','Islamabad','Gilgit-Baltistan','Azad Kashmir'
+        
         ];
         
         sort($balochistanDistricts); // Sort alphabetically
@@ -487,8 +488,8 @@ class BulkUploadController extends Controller
         return view('super_admin.bulk_upload.preview', compact('validStudents', 'errors', 'college', 'test'));
     }
 
-    /**
-     * Import valid students
+   /**
+     * Import valid students - FIXED VERSION
      */
     public function import(Request $request)
     {
@@ -506,61 +507,115 @@ class BulkUploadController extends Controller
             DB::beginTransaction();
 
             $successCount = 0;
-            foreach ($validStudents as $studentData) {
-                // Move picture to storage
-                $picturePath = null;
-                if (isset($studentData['temp_picture_path']) && file_exists($studentData['temp_picture_path'])) {
-                    $filename = basename($studentData['temp_picture_path']);
-                    $picturePath = 'student-pictures/' . $filename;
-                    Storage::disk('public')->put($picturePath, file_get_contents($studentData['temp_picture_path']));
+            $failedCount = 0;
+            $errors = [];
+            
+            foreach ($validStudents as $index => $studentData) {
+                try {
+                    // Move picture to storage
+                    $picturePath = null;
+                    if (isset($studentData['temp_picture_path']) && file_exists($studentData['temp_picture_path'])) {
+                        $filename = basename($studentData['temp_picture_path']);
+                        $picturePath = 'student-pictures/' . $filename;
+                        Storage::disk('public')->put($picturePath, file_get_contents($studentData['temp_picture_path']));
+                    }
+
+                    // Generate UNIQUE registration ID with microseconds
+                    $registrationId = 'REG' . time() . substr(microtime(), 2, 6) . rand(100, 999);
+                    
+                    // Ensure uniqueness
+                    while (Student::where('registration_id', $registrationId)->exists()) {
+                        $registrationId = 'REG' . time() . substr(microtime(), 2, 6) . rand(100, 999);
+                    }
+
+                    // Create student with explicit field mapping
+                    $student = Student::create([
+                        'test_id' => $test->id,
+                        'test_district_id' => $studentData['test_district_id'],
+                        'name' => $studentData['name'],
+                        'cnic' => $studentData['cnic'],
+                        'father_name' => $studentData['father_name'],
+                        'father_cnic' => $studentData['father_cnic'],
+                        'gender' => $studentData['gender'],
+                        'religion' => $studentData['religion'],
+                        'date_of_birth' => $studentData['date_of_birth'],
+                        'province' => $studentData['province'],
+                        'division' => $studentData['division'] ?? null,
+                        'district' => $studentData['district'],
+                        'address' => $studentData['address'],
+                        'picture' => $picturePath,
+                        'registration_id' => $registrationId,
+                        // Roll number fields are null initially
+                        'roll_number' => null,
+                        'book_color' => null,
+                        'hall_number' => null,
+                        'zone_number' => null,
+                        'row_number' => null,
+                        'seat_number' => null,
+                    ]);
+
+                    if ($student && $student->id) {
+                        $successCount++;
+                        \Log::info("Student created successfully: {$student->name} (ID: {$student->id})");
+                    } else {
+                        $failedCount++;
+                        $errors[] = "Failed to create student: {$studentData['name']} - Unknown error";
+                        \Log::error("Student creation returned null: " . json_encode($studentData));
+                    }
+                    
+                } catch (\Exception $e) {
+                    $failedCount++;
+                    $errors[] = "Error creating student {$studentData['name']}: " . $e->getMessage();
+                    \Log::error("Student creation failed: " . $e->getMessage());
+                    \Log::error("Student data: " . json_encode($studentData));
+                    \Log::error("Stack trace: " . $e->getTraceAsString());
                 }
-
-                // Create student
-                $student = Student::create([
-                    'test_id' => $test->id,
-                    'test_district_id' => $studentData['test_district_id'],
-                    'name' => $studentData['name'],
-                    'cnic' => $studentData['cnic'],
-                    'father_name' => $studentData['father_name'],
-                    'father_cnic' => $studentData['father_cnic'],
-                    'gender' => $studentData['gender'],
-                    'religion' => $studentData['religion'],
-                    'date_of_birth' => $studentData['date_of_birth'],
-                    'province' => $studentData['province'],
-                    'division' => $studentData['division'],
-                    'district' => $studentData['district'],
-                    'address' => $studentData['address'],
-                    'picture' => $picturePath,
-                    'registration_id' => 'REG' . time() . rand(1000, 9999),
-                ]);
-
-                $successCount++;
             }
 
-            // Log the action
-            AuditLog::logAction(
-                'super_admin',
-                Auth::guard('super_admin')->id(),
-                'uploaded',
-                'Student',
-                null,
-                "Bulk uploaded {$successCount} students for {$college->name}",
-                null,
-                ['count' => $successCount]
-            );
+            // Only commit if at least one student was created successfully
+            if ($successCount > 0) {
+                // Log the action
+                AuditLog::logAction(
+                    'super_admin',
+                    Auth::guard('super_admin')->id(),
+                    'uploaded',
+                    'Student',
+                    null,
+                    "Bulk uploaded {$successCount} students for {$college->name}" . ($failedCount > 0 ? " ({$failedCount} failed)" : ""),
+                    null,
+                    ['count' => $successCount, 'failed' => $failedCount, 'college_id' => $college->id, 'test_id' => $test->id]
+                );
 
-            DB::commit();
+                DB::commit();
+                
+                // Cleanup
+                $this->cleanupTemp($extractPath);
+                session()->forget(['bulk_upload_valid', 'bulk_upload_errors', 'bulk_upload_college', 'bulk_upload_test', 'bulk_upload_extract_path']);
 
-            // Cleanup
-            $this->cleanupTemp($extractPath);
-            session()->forget(['bulk_upload_valid', 'bulk_upload_errors', 'bulk_upload_college', 'bulk_upload_test', 'bulk_upload_extract_path']);
-
-            return redirect()->route('super-admin.bulk-upload.index')
-                ->with('success', "Successfully imported {$successCount} students for {$college->name}!");
+                $message = "Successfully imported {$successCount} students for {$college->name}!";
+                if ($failedCount > 0) {
+                    $message .= " ({$failedCount} students failed to import - check logs)";
+                }
+                
+                return redirect()->route('super-admin.bulk-upload.index')
+                    ->with('success', $message);
+            } else {
+                DB::rollBack();
+                
+                \Log::error("All students failed to import. Errors: " . json_encode($errors));
+                
+                return redirect()->route('super-admin.bulk-upload.index')
+                    ->with('error', 'Failed to import any students. Errors: ' . implode(', ', array_slice($errors, 0, 3)) . '... Check logs for details.');
+            }
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Error importing students: ' . $e->getMessage());
+            
+            // Detailed error logging
+            \Log::error('Bulk import transaction error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return back()->with('error', 'Error importing students: ' . $e->getMessage() . ' (Check logs: storage/logs/laravel.log)');
         }
     }
 

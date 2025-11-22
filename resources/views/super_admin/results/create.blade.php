@@ -75,11 +75,13 @@
                                 <th class="text-left py-2 px-2">Column C</th>
                                 <th class="text-left py-2 px-2">Column D</th>
                                 <th class="text-left py-2 px-2">Column E</th>
+                                <th class="text-left py-2 px-2">Column F</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr class="border-b border-gray-200">
                                 <td class="py-2 px-2">Roll Number</td>
+                                <td class="py-2 px-2">Book Color</td>
                                 <td class="py-2 px-2">English Obj</td>
                                 <td class="py-2 px-2">Urdu Obj</td>
                                 <td class="py-2 px-2">Math Obj</td>
@@ -90,10 +92,10 @@
                     <table class="w-full mt-2">
                         <thead>
                             <tr class="border-b-2 border-gray-300">
-                                <th class="text-left py-2 px-2">Column F</th>
                                 <th class="text-left py-2 px-2">Column G</th>
                                 <th class="text-left py-2 px-2">Column H</th>
                                 <th class="text-left py-2 px-2">Column I</th>
+                                <th class="text-left py-2 px-2">Column J</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -111,6 +113,7 @@
                     <table class="w-full font-mono text-xs">
                         <tr class="bg-green-100">
                             <td class="border px-2 py-1">00001</td>
+                            <td class="border px-2 py-1">Yellow</td>
                             <td class="border px-2 py-1">25</td>
                             <td class="border px-2 py-1">30</td>
                             <td class="border px-2 py-1">28</td>
@@ -122,6 +125,7 @@
                         </tr>
                         <tr>
                             <td class="border px-2 py-1">00002</td>
+                            <td class="border px-2 py-1">Green</td>
                             <td class="border px-2 py-1">22</td>
                             <td class="border px-2 py-1">28</td>
                             <td class="border px-2 py-1">25</td>
@@ -146,11 +150,13 @@
                                 <th class="text-left py-2 px-3">Column C</th>
                                 <th class="text-left py-2 px-3">Column D</th>
                                 <th class="text-left py-2 px-3">Column E</th>
+                                <th class="text-left py-2 px-3">Column E</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr class="border-b border-gray-200">
                                 <td class="py-2 px-3">Roll Number</td>
+                                <td class="py-2 px-3">Book Color</td>
                                 <td class="py-2 px-3">English</td>
                                 <td class="py-2 px-3">Urdu</td>
                                 <td class="py-2 px-3">Math</td>
@@ -164,6 +170,7 @@
                     <table class="w-full font-mono text-xs">
                         <tr class="bg-green-100">
                             <td class="border px-2 py-1">00001</td>
+                            <td class="border px-2 py-1">Yellow</td>
                             <td class="border px-2 py-1">45</td>
                             <td class="border px-2 py-1">48</td>
                             <td class="border px-2 py-1">42</td>
@@ -171,6 +178,7 @@
                         </tr>
                         <tr>
                             <td class="border px-2 py-1">00002</td>
+                            <td class="border px-2 py-1">Green</td>
                             <td class="border px-2 py-1">40</td>
                             <td class="border px-2 py-1">45</td>
                             <td class="border px-2 py-1">38</td>
@@ -188,11 +196,13 @@
                             <tr class="border-b-2 border-gray-300">
                                 <th class="text-left py-2 px-3">Column A</th>
                                 <th class="text-left py-2 px-3">Column B</th>
+                                <th class="text-left py-2 px-3">Column C</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr class="border-b border-gray-200">
                                 <td class="py-2 px-3">Roll Number</td>
+                                <td class="py-2 px-3">Book Color</td>
                                 <td class="py-2 px-3">Marks</td>
                             </tr>
                         </tbody>
@@ -203,11 +213,13 @@
                     <table class="w-full font-mono text-xs">
                         <tr class="bg-green-100">
                             <td class="border px-3 py-1">00001</td>
-                            <td class="border px-3 py-1">185</td>
+                            <td class="border px-3 py-1">Yellow</td>
+                            <td class="border px-3 py-1">98</td>
                         </tr>
                         <tr>
                             <td class="border px-3 py-1">00002</td>
-                            <td class="border px-3 py-1">170</td>
+                            <td class="border px-3 py-1">Green</td>
+                            <td class="border px-3 py-1">100</td>
                         </tr>
                     </table>
                 </div>

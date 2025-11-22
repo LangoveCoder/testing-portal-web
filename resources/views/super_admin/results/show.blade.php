@@ -163,6 +163,7 @@
                             <tr>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Roll Number</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Book Color</th>
                                 
                                 @if($test->test_mode == 'mode_1')
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Eng Obj</th>
@@ -194,6 +195,17 @@
                                     <div class="font-medium text-gray-900">{{ $student->name }}</div>
                                     <div class="text-xs text-gray-500">{{ $student->cnic }}</div>
                                 </td>
+                                <td class="px-4 py-3 text-sm">
+                                    @if($student->result)
+                                        <span class="px-3 py-1 rounded font-bold text-xs" 
+                                              style="background-color: {{ $student->result->book_color === 'Yellow' ? '#FEF3C7' : ($student->result->book_color === 'Green' ? '#D1FAE5' : ($student->result->book_color === 'Blue' ? '#DBEAFE' : '#FCE7F3')) }}; 
+                                                     color: {{ $student->result->book_color === 'Yellow' ? '#92400E' : ($student->result->book_color === 'Green' ? '#065F46' : ($student->result->book_color === 'Blue' ? '#1E40AF' : '#9F1239')) }};">
+                                            {{ $student->result->book_color }}
+                                        </span>
+                                    @else
+                                        <span class="text-gray-400">-</span>
+                                    @endif
+                                </td>
                                 
                                 @if($student->result)
                                     @if($test->test_mode == 'mode_1')
@@ -215,8 +227,8 @@
                                     @endif
                                     
                                     <td class="px-4 py-3">
-                                        <span class="font-bold text-green-600">{{ $student->result->total_marks }}</span>
-                                        <span class="text-xs text-gray-500">/ {{ $test->total_marks }}</span>
+                                        <span class="font-bold text-green-600">{{ $student->result->marks }}</span>
+                                        <span class="text-xs text-gray-500"> / {{ $test->total_marks }}</span>
                                     </td>
                                     <td class="px-4 py-3">
                                         @if($student->result->is_published)
@@ -230,6 +242,7 @@
                                         @endif
                                     </td>
                                 @else
+                                    <td class="px-4 py-3 text-sm text-gray-400">-</td>
                                     @if($test->test_mode == 'mode_1')
                                         <td class="px-4 py-3 text-sm text-gray-400" colspan="8">-</td>
                                     @elseif($test->test_mode == 'mode_2')

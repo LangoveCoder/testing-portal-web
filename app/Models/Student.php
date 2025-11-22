@@ -19,6 +19,7 @@ class Student extends Model
     'father_cnic',
     'gender',
     'religion',
+    'disability',
     'date_of_birth',
     'province',
     'division',

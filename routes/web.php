@@ -140,4 +140,7 @@ Route::prefix('student')->name('student.')->group(function () {
         ->name('check-result');
     Route::post('/check-result', [App\Http\Controllers\StudentController::class, 'searchResult'])
         ->name('check-result.search');
+
+    // Roll Slip PDF Download
+Route::post('/roll-slip/download', [App\Http\Controllers\Student\RollNumberSlipController::class, 'download'])->name('roll-slip.download');
 });
