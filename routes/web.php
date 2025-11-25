@@ -4,12 +4,72 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\SuperAdminAuthController;
 use App\Http\Controllers\Auth\CollegeAuthController;
 
+// ============================================
+// PUBLIC WEBSITE ROUTES
+// ============================================
+
 // Home/Landing Page
 Route::get('/', function () {
-    return view('welcome');
+    return view('home');
 })->name('home');
 
-// Super Admin Routes
+// About Routes
+Route::get('/about-us', function () {
+    return view('public.about.us');
+})->name('about-us');
+
+Route::get('/organogram', function () {
+    return view('public.about.organogram');
+})->name('organogram');
+
+// Training Routes
+Route::get('/training/events', function () {
+    return view('public.training.events');
+})->name('training.events');
+
+Route::get('/training/materials', function () {
+    return view('public.training.materials');
+})->name('training.materials');
+
+Route::get('/training/outcomes', function () {
+    return view('public.training.outcomes');
+})->name('training.outcomes');
+
+// Tests Routes (Public)
+Route::get('/tests/results', function () {
+    return view('public.tests.results');
+})->name('tests.results');
+
+Route::get('/tests/answer-keys', function () {
+    return view('public.tests.answer-keys');
+})->name('tests.answer-keys');
+
+Route::get('/tests/upcoming', function () {
+    return view('public.tests.upcoming');
+})->name('tests.upcoming');
+
+Route::get('/tests/model-papers', function () {
+    return view('public.tests.model-papers');
+})->name('tests.model-papers');
+
+// Achievements
+Route::get('/achievements', function () {
+    return view('public.achievements');
+})->name('achievements');
+
+// Contact
+Route::get('/contact', function () {
+    return view('public.contact');
+})->name('contact');
+
+// Student Portal (Public Access)
+Route::get('/student-portal', [App\Http\Controllers\StudentController::class, 'checkRollNumber'])
+    ->name('student.portal');
+
+// ============================================
+// SUPER ADMIN ROUTES
+// ============================================
+
 Route::prefix('super-admin')->name('super-admin.')->group(function () {
     // Authentication
     Route::get('/login', [SuperAdminAuthController::class, 'showLoginForm'])->name('login');
@@ -70,18 +130,20 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
         });
 
         // Merit Lists
-// Merit Lists
-Route::prefix('merit-lists')->name('merit-lists.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\SuperAdmin\MeritListController::class, 'index'])->name('index');
-    Route::get('/{test}', [\App\Http\Controllers\SuperAdmin\MeritListController::class, 'show'])->name('show');
-    Route::get('/{test}/download', [\App\Http\Controllers\SuperAdmin\MeritListController::class, 'downloadExcel'])->name('download');
-    Route::get('/{test}/download-all', [\App\Http\Controllers\SuperAdmin\MeritListController::class, 'downloadAllExcel'])->name('download-all');
-    Route::get('/{test}/download-pdf', [\App\Http\Controllers\SuperAdmin\MeritListController::class, 'downloadComprehensivePdf'])->name('download-pdf');
-});
+        Route::prefix('merit-lists')->name('merit-lists.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\SuperAdmin\MeritListController::class, 'index'])->name('index');
+            Route::get('/{test}', [\App\Http\Controllers\SuperAdmin\MeritListController::class, 'show'])->name('show');
+            Route::get('/{test}/download', [\App\Http\Controllers\SuperAdmin\MeritListController::class, 'downloadExcel'])->name('download');
+            Route::get('/{test}/download-all', [\App\Http\Controllers\SuperAdmin\MeritListController::class, 'downloadAllExcel'])->name('download-all');
+            Route::get('/{test}/download-pdf', [\App\Http\Controllers\SuperAdmin\MeritListController::class, 'downloadComprehensivePdf'])->name('download-pdf');
+        });
     });
 });
 
-// College Admin Routes
+// ============================================
+// COLLEGE ADMIN ROUTES
+// ============================================
+
 Route::prefix('college')->name('college.')->group(function () {
     // Authentication
     Route::get('/login', [CollegeAuthController::class, 'showLoginForm'])->name('login');
@@ -91,22 +153,22 @@ Route::prefix('college')->name('college.')->group(function () {
     Route::middleware('auth:college')->group(function () {
         Route::post('/logout', [CollegeAuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', function () {
-    $college = Auth::guard('college')->user();
-    $totalStudents = \App\Models\Student::whereHas('test', function($query) use ($college) {
-        $query->where('college_id', $college->id);
-    })->count();
-    
-    $studentsWithRollNumbers = \App\Models\Student::whereHas('test', function($query) use ($college) {
-        $query->where('college_id', $college->id);
-    })->whereNotNull('roll_number')->count();
-    
-    $availableTests = \App\Models\Test::where('college_id', $college->id)
-        ->where('registration_deadline', '>=', now())
-        ->orderBy('test_date')
-        ->get();
-    
-    return view('college.dashboard', compact('totalStudents', 'studentsWithRollNumbers', 'availableTests'));
-})->name('dashboard');
+            $college = Auth::guard('college')->user();
+            $totalStudents = \App\Models\Student::whereHas('test', function($query) use ($college) {
+                $query->where('college_id', $college->id);
+            })->count();
+            
+            $studentsWithRollNumbers = \App\Models\Student::whereHas('test', function($query) use ($college) {
+                $query->where('college_id', $college->id);
+            })->whereNotNull('roll_number')->count();
+            
+            $availableTests = \App\Models\Test::where('college_id', $college->id)
+                ->where('registration_deadline', '>=', now())
+                ->orderBy('test_date')
+                ->get();
+            
+            return view('college.dashboard', compact('totalStudents', 'studentsWithRollNumbers', 'availableTests'));
+        })->name('dashboard');
         
         // Student Management
         Route::resource('students', \App\Http\Controllers\College\StudentController::class);
@@ -115,18 +177,22 @@ Route::prefix('college')->name('college.')->group(function () {
         Route::post('/download-bulk-template', [\App\Http\Controllers\SuperAdmin\BulkUploadController::class, 'downloadTemplate'])->name('download-bulk-template');
 
         Route::prefix('results')->name('results.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\College\ResultController::class, 'index'])->name('index');
-        Route::get('/{test}', [\App\Http\Controllers\College\ResultController::class, 'show'])->name('show');
-    });
-    
-    // Reports
-    Route::prefix('reports')->name('reports.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\College\ReportController::class, 'index'])->name('index');
-        Route::post('/student-list', [\App\Http\Controllers\College\ReportController::class, 'downloadStudentList'])->name('download-student-list');
-        Route::post('/result-report', [\App\Http\Controllers\College\ReportController::class, 'downloadResultReport'])->name('download-result-report');
-    });
+            Route::get('/', [\App\Http\Controllers\College\ResultController::class, 'index'])->name('index');
+            Route::get('/{test}', [\App\Http\Controllers\College\ResultController::class, 'show'])->name('show');
+        });
+        
+        // Reports
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\College\ReportController::class, 'index'])->name('index');
+            Route::post('/student-list', [\App\Http\Controllers\College\ReportController::class, 'downloadStudentList'])->name('download-student-list');
+            Route::post('/result-report', [\App\Http\Controllers\College\ReportController::class, 'downloadResultReport'])->name('download-result-report');
+        });
     });
 });
+
+// ============================================
+// STUDENT PORTAL ROUTES
+// ============================================
 
 Route::prefix('student')->name('student.')->group(function () {
     // Check Roll Number
@@ -142,5 +208,5 @@ Route::prefix('student')->name('student.')->group(function () {
         ->name('check-result.search');
 
     // Roll Slip PDF Download
-Route::post('/roll-slip/download', [App\Http\Controllers\Student\RollNumberSlipController::class, 'download'])->name('roll-slip.download');
+    Route::post('/roll-slip/download', [App\Http\Controllers\Student\RollNumberSlipController::class, 'download'])->name('roll-slip.download');
 });

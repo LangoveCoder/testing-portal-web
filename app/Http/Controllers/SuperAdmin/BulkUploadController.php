@@ -15,7 +15,6 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
-use ZipArchive;
 use Carbon\Carbon;
 
 class BulkUploadController extends Controller
@@ -343,8 +342,8 @@ class BulkUploadController extends Controller
         $zipFilename = $college->code . '_upload_template.zip';
         $zipPath = storage_path('app/temp/' . $zipFilename);
 
-        $zip = new ZipArchive();
-        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true) {
             $zip->addFile($tempPath, 'students.xlsx');
             $zip->addEmptyDir('pictures');
             
@@ -396,7 +395,7 @@ class BulkUploadController extends Controller
             $zipFile = $request->file('upload_file');
             $extractPath = storage_path('app/temp/extract_' . time());
             
-            $zip = new ZipArchive();
+            $zip = new \ZipArchive();
             if ($zip->open($zipFile->getPathname()) === true) {
                 $zip->extractTo($extractPath);
                 $zip->close();

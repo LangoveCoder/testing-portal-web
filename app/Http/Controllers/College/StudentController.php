@@ -87,11 +87,10 @@ class StudentController extends Controller
         }
 
         // Handle picture upload
-        if ($request->hasFile('picture')) {
-            $picturePath = $request->file('picture')->store('student-pictures', 'public');
-            $validated['picture'] = $picturePath;
-        }
-
+if ($request->hasFile('picture')) {
+    $picturePath = $request->file('picture')->store('student-pictures', 'public');
+    $validated['picture'] = $picturePath;
+}
         // Generate unique registration ID
         $validated['registration_id'] = 'REG-' . strtoupper(Str::random(10));
 
