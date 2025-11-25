@@ -304,7 +304,7 @@
                 <div class="header-text">
                     <h1>{{ $student->test->college->name }}</h1>
                     <p>{{ $student->test->college->address ?? 'College Address Here' }}</p>
-                    <p>Contact: {{ $student->test->college->phone ?? '(+92) 081-1234567' }} | Email: {{ $student->test->college->email ?? 'info@college.edu.pk' }}</p>
+                    <p>Contact: {{ $student->test->college->phone ?? '(+92) 081-1234567' }} | Email: {{ $student->test->college->email ?? '<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="cba2a5ada48ba8a4a7a7aeacaee5aeafbee5bba0">[email&#160;protected]</a>' }}</p>
                     <p>Admission Test {{ $student->test->test_date->format('Y') }}</p>
                 </div>
             </div>
@@ -400,7 +400,14 @@
         <!-- QR Code -->
         <div class="qr-section">
             <div class="qr-code">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode('Venue: ' . $student->testDistrict->district . ', ' . $student->testDistrict->province . ' - Roll: ' . $student->roll_number) }}" alt="QR Code">
+                @php
+                    // Get the test venue for this student
+                    $testVenue = $student->test->testVenues->where('test_district_id', $student->test_district_id)->first();
+                    $qrData = $testVenue && $testVenue->google_maps_link 
+                        ? $testVenue->google_maps_link 
+                        : 'Venue: ' . $student->testDistrict->district . ', ' . $student->testDistrict->province;
+                @endphp
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($qrData) }}" alt="QR Code">
             </div>
         </div>
         

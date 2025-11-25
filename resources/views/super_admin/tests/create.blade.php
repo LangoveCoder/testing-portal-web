@@ -215,7 +215,15 @@ function renderTestVenues() {
                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500"
                                   placeholder="Complete address with landmarks"></textarea>
                     </div>
-                    
+                    <div class="md:col-span-2">
+    <label class="block text-gray-700 text-sm font-bold mb-2">
+        Google Maps Link <span class="text-red-500">*</span>
+    </label>
+    <input type="url" name="test_venues[${index}][google_maps_link]" required
+           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500"
+           placeholder="https://maps.google.com/...">
+    <p class="text-xs text-gray-500 mt-1">Right-click on Google Maps location → Copy link address</p>
+</div>
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2">
                             Number of Halls <span class="text-red-500">*</span>

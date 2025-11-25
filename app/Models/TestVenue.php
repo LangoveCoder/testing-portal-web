@@ -14,6 +14,7 @@ class TestVenue extends Model
         'test_district_id',
         'venue_name',
         'venue_address',
+        'google_maps_link',
         'number_of_halls',
         'zones_per_hall',
         'rows_per_zone',
