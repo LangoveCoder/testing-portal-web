@@ -278,14 +278,14 @@
 <script>
 // Balochistan divisions and their districts
 const balochistanDistricts = {
-    'Quetta Division': ['Quetta', 'Pishin', 'Killa Abdullah', 'Chagai', 'Nushki', 'Chaman'],
-    'Kalat Division': ['Kalat', 'Mastung', 'Khuzdar', 'Awaran', 'Hub', 'Lasbela', 'Kharan', 'Washuk', 'Surab'],
-    'Makran Division': ['Turbat', 'Kech', 'Gwadar', 'Panjgur'],
-    'Nasirabad Division': ['Nasirabad', 'Jaffarabad', 'Jhal Magsi', 'Kachhi', 'Sohbatpur'],
+    'Quetta Division': ['Quetta', 'Pishin', 'Killa Abdullah', 'Chaman'],
+    'Kalat Division': ['Kalat', 'Mastung', 'Khuzdar', 'Awaran', 'Hub', 'Lasbela', 'Surab'],
+    'Makran Division': ['Kech', 'Gwadar', 'Panjgur'],
+    'Nasirabad Division': ['Nasirabad', 'Jaffarabad', 'Jhal Magsi', 'Kachhi', 'Sohbatpur', 'Ustah Muhammad'],
     'Sibi Division': ['Sibi', 'Kohlu', 'Dera Bugti', 'Ziarat', 'Harnai', 'Lehri'],
-    'Zhob Division': ['Zhob', 'Sherani', 'Killa Saifullah', 'Musakhel'],
-    'Loralai Division': ['Loralai', 'Barkhan', 'Duki'],
-    'Rakhshan Division': ['Kharan', 'Washuk', 'Chagai']
+    'Zhob Division': ['Zhob', 'Sherani', 'Killa Saifullah'],
+    'Loralai Division': ['Loralai', 'Musakhel', 'Barkhan', 'Duki'],
+    'Rakhshan Division': ['Nushki','Kharan', 'Washuk', 'Chagai']
 };
 
 function handleProvinceChange() {

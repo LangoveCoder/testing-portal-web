@@ -151,7 +151,7 @@ class BulkUploadController extends Controller
         // Division Dropdown (Column I) - Balochistan Divisions
         $divisions = [
             'Quetta Division', 'Kalat Division', 'Makran Division', 
-            'Nasirabad Division', 'Sibi Division', 'Zhob Division', 'Rakhshan Division'
+            'Nasirabad Division', 'Sibi Division', 'Zhob Division', 'Rakhshan Division', 'Loralai Division'
         ];
         for ($row = 2; $row <= 1000; $row++) {
             $validation = $sheet->getCell('I' . $row)->getDataValidation();

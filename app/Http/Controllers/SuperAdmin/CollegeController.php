@@ -176,4 +176,68 @@ class CollegeController extends Controller
         
         return response()->json($testDistricts);
     }
+
+    // Show form to add test districts to existing college
+    public function addTestDistricts(College $college)
+    {
+        return view('super_admin.colleges.add-test-districts', compact('college'));
+    }
+
+    // Store new test districts for existing college
+    public function storeTestDistricts(Request $request, College $college)
+    {
+        $validated = $request->validate([
+            'test_districts' => 'required|array|min:1',
+            'test_districts.*.province' => 'required|string',
+            'test_districts.*.division' => 'nullable|string',
+            'test_districts.*.district' => 'required|string',
+        ]);
+
+        $addedDistricts = [];
+        $duplicates = [];
+
+        foreach ($validated['test_districts'] as $districtData) {
+            // Check if this district already exists for this college
+            $exists = $college->testDistricts()
+                ->where('province', $districtData['province'])
+                ->where('district', $districtData['district'])
+                ->exists();
+
+            if ($exists) {
+                $duplicates[] = $districtData['district'] . ', ' . $districtData['province'];
+            } else {
+                $college->testDistricts()->create([
+                    'province' => $districtData['province'],
+                    'division' => $districtData['division'] ?? null,
+                    'district' => $districtData['district'],
+                ]);
+                $addedDistricts[] = $districtData['district'] . ', ' . $districtData['province'];
+            }
+        }
+
+        // Log action
+        if (count($addedDistricts) > 0) {
+            AuditLog::logAction(
+                'super_admin',
+                Auth::guard('super_admin')->id(),
+                'updated',
+                'College',
+                $college->id,
+                'Added ' . count($addedDistricts) . ' test district(s) to college: ' . $college->name,
+                null,
+                ['added_districts' => $addedDistricts]
+            );
+        }
+
+        $message = '';
+        if (count($addedDistricts) > 0) {
+            $message .= count($addedDistricts) . ' test district(s) added successfully! ';
+        }
+        if (count($duplicates) > 0) {
+            $message .= count($duplicates) . ' district(s) already existed and were skipped.';
+        }
+
+        return redirect()->route('super-admin.colleges.show', $college)
+            ->with('success', $message);
+    }
 }

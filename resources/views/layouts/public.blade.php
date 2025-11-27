@@ -92,9 +92,9 @@
             <!-- Top Header with Logo -->
             <div class="flex items-center justify-between py-4 border-b border-gray-200">
                 <div class="flex items-center space-x-4">
-                    <img src="https://via.placeholder.com/80x80/00B4D8/FFFFFF?text=BACT" alt="BACT Logo" class="h-20 w-20 rounded-full">
+                    <img src="C:\xampp\htdocs\admission-portal\public\images\bact-logo.png" alt="BACT Logo" class="h-20 w-20 rounded-full">
                     <div>
-                        <h1 class="text-2xl font-bold text-cyan-600">BACT</h1>
+                        <h1 class="text-4xl font-bold text-cyan-600">BACT</h1>
                         <p class="text-sm text-gray-600">Balochistan Academy for College Teachers</p>
                         <p class="text-xs text-gray-500">Colleges Higher & Technical Education Department</p>
                     </div>

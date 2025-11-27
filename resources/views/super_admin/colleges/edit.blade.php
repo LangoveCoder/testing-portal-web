@@ -195,9 +195,19 @@
                     </div>
                 </div>
 
-                <!-- Test Districts Information (Read-only) -->
+                <!-- Test Districts Information -->
                 <div class="border-t-2 border-gray-200 pt-6 mt-6">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4">Assigned Test Districts (Cannot be edited here)</h3>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-gray-800">Assigned Test Districts</h3>
+                        <a href="{{ route('super-admin.colleges.add-test-districts', $college) }}" 
+                           class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Add More Districts
+                        </a>
+                    </div>
+                    
                     @if($college->testDistricts->count() > 0)
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             @foreach($college->testDistricts as $index => $district)
@@ -217,9 +227,18 @@
                                 </div>
                             @endforeach
                         </div>
-                        <p class="text-sm text-gray-500 mt-3">Note: To modify test districts, please delete and recreate the college.</p>
+                        <div class="mt-4 p-3 bg-blue-50 border-l-4 border-blue-500 text-blue-700">
+                            <p class="text-sm">
+                                <strong>Note:</strong> You can add new test districts but cannot remove existing ones to protect student data.
+                            </p>
+                        </div>
                     @else
-                        <p class="text-gray-500">No test districts assigned.</p>
+                        <p class="text-gray-500 mb-3">No test districts assigned yet.</p>
+                        <div class="p-3 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700">
+                            <p class="text-sm">
+                                <strong>Warning:</strong> This college has no test districts. Please add at least one test district.
+                            </p>
+                        </div>
                     @endif
                 </div>
 

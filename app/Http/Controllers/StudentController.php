@@ -20,33 +20,32 @@ class StudentController extends Controller
      * Search roll number
      */
     public function searchRollNumber(Request $request)
-    {
-        $request->validate([
-            'cnic' => 'required|digits:13',
-            'registration_id' => 'required|string',
-        ]);
+{
+    $request->validate([
+        'cnic' => 'required|digits:13',
+    ]);
 
-        // Find student by CNIC and Registration ID
-        $student = Student::with('test')
-            ->where('cnic', $request->cnic)
-            ->where('registration_id', $request->registration_id)
-            ->first();
+    // Find student by CNIC only
+    $student = Student::with('test')
+        ->where('cnic', $request->cnic)
+        ->whereNotNull('roll_number')
+        ->first();
 
-        if (!$student) {
-            return back()
-                ->withInput()
-                ->with('error', 'No record found with the provided CNIC and Registration ID. Please check your details and try again.');
-        }
-
-        // Check if roll number has been generated
-        if (!$student->roll_number) {
-            return back()
-                ->withInput()
-                ->with('error', 'Roll number has not been generated yet for this student. Please check back later.');
-        }
-
-        return view('student.check-roll-number', compact('student'));
+    if (!$student) {
+        return back()
+            ->withInput()
+            ->with('error', 'No record found with the provided CNIC. Please check your details and try again.');
     }
+
+    // Check if roll number has been generated
+    if (!$student->roll_number) {
+        return back()
+            ->withInput()
+            ->with('error', 'Roll number has not been generated yet for this student. Please check back later.');
+    }
+
+    return view('student.check-roll-number', compact('student'));
+}
 
     /**
      * Show check result page

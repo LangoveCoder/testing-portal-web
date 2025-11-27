@@ -71,6 +71,9 @@ class RollNumberController extends Controller
             // Process each venue sequentially
             $venues = $test->testVenues()->with('testDistrict')->get();
             
+            // Track if this is first district
+            $isFirstDistrict = true;
+            
             foreach ($venues as $venue) {
                 // Get students for this venue
                 $students = Student::where('test_id', $test->id)
@@ -83,7 +86,27 @@ class RollNumberController extends Controller
                     continue;
                 }
                 
-                // Calculate seating positions
+                // If not first district, apply gap and find next valid position
+                if (!$isFirstDistrict) {
+                    // Add minimum gap of 30
+                    $currentRollNumber += 30;
+                    $colorIndex = $currentRollNumber - $test->starting_roll_number;
+                    
+                    // Now find next position where BOTH conditions are met:
+                    // 1. Color index % 4 == 0 (Yellow color)
+                    // 2. When we assign to THIS venue, seat number % 4 == 1
+                    
+                    // The trick: we need to know where in THIS venue we'll start
+                    // Since each venue is independent, we start at seat 1 of this venue
+                    // So we just need to ensure colorIndex % 4 == 0
+                    
+                    while ($colorIndex % 4 != 0) {
+                        $currentRollNumber++;
+                        $colorIndex++;
+                    }
+                }
+                
+                // For this venue, start seating from beginning
                 $hallNumber = 1;
                 $zoneNumber = 1;
                 $rowNumber = 1;
@@ -130,13 +153,15 @@ class RollNumberController extends Controller
                                 
                                 // Check if we exceeded hall capacity
                                 if ($hallNumber > $venue->number_of_halls) {
-                                    // This shouldn't happen if capacity was calculated correctly
-                                    throw new \Exception('Exceeded venue capacity');
+                                    throw new \Exception('Exceeded venue capacity for district: ' . $venue->testDistrict->district . '. Venue capacity: ' . $venue->total_capacity . ', Students: ' . $students->count());
                                 }
                             }
                         }
                     }
                 }
+                
+                // Mark that first district is done
+                $isFirstDistrict = false;
             }
             
             // Mark test as roll numbers generated
@@ -161,7 +186,7 @@ class RollNumberController extends Controller
             
             return redirect()->route('super-admin.roll-numbers.index')
                 ->with('success', 'Roll numbers generated successfully! Total students: ' . ($currentRollNumber - $test->starting_roll_number));
-                
+            
         } catch (\Exception $e) {
             DB::rollBack();
             

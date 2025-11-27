@@ -15,7 +15,7 @@
                     Check Your Roll Number
                 </h2>
                 <p class="mt-2 text-sm text-gray-600">
-                    Enter your CNIC and Registration ID to view your roll number and seat details
+                    Enter your CNIC to view your roll number and seat details
                 </p>
             </div>
         </div>
@@ -44,7 +44,7 @@
                 </div>
 
                 <!-- Registration ID Input -->
-                <div class="mb-6">
+                <!-- <div class="mb-6">
                     <label for="registration_id" class="block text-sm font-medium text-gray-700 mb-2">
                         Registration ID
                     </label>
@@ -58,7 +58,7 @@
                     @error('registration_id')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
-                </div>
+                </div> -->
 
                 <!-- Submit Button -->
                 <button type="submit" 
@@ -156,7 +156,7 @@
     <form action="{{ route('student.roll-slip.download') }}" method="POST">
         @csrf
         <input type="hidden" name="cnic" value="{{ $student->cnic }}">
-        <input type="hidden" name="registration_id" value="{{ $student->registration_id }}">
+        <!-- <input type="hidden" name="registration_id" value="{{ $student->registration_id }}"> -->
         <button type="submit" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 px-8 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center mx-auto">
             <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>

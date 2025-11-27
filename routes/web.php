@@ -84,7 +84,13 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
         
         // College Management
         Route::resource('colleges', \App\Http\Controllers\SuperAdmin\CollegeController::class);
+        Route::get('colleges/{college}/add-test-districts', [\App\Http\Controllers\SuperAdmin\CollegeController::class, 'addTestDistricts'])->name('colleges.add-test-districts');
+        Route::post('colleges/{college}/add-test-districts', [\App\Http\Controllers\SuperAdmin\CollegeController::class, 'storeTestDistricts'])->name('colleges.store-test-districts');
         Route::get('colleges/{college}/test-districts', [\App\Http\Controllers\SuperAdmin\CollegeController::class, 'getTestDistricts'])->name('colleges.test-districts');
+        
+        // Inside super-admin routes, after the colleges resource route:
+        Route::get('colleges/{college}/add-test-districts', [\App\Http\Controllers\SuperAdmin\CollegeController::class, 'addTestDistricts'])->name('colleges.add-test-districts');
+        Route::post('colleges/{college}/add-test-districts', [\App\Http\Controllers\SuperAdmin\CollegeController::class, 'storeTestDistricts'])->name('colleges.store-test-districts');
         
         // Test Management
         Route::resource('tests', \App\Http\Controllers\SuperAdmin\TestController::class);
