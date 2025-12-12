@@ -143,6 +143,12 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
             Route::get('/{test}/download-all', [\App\Http\Controllers\SuperAdmin\MeritListController::class, 'downloadAllExcel'])->name('download-all');
             Route::get('/{test}/download-pdf', [\App\Http\Controllers\SuperAdmin\MeritListController::class, 'downloadComprehensivePdf'])->name('download-pdf');
         });
+
+        Route::prefix('seating-plans')->name('seating-plans.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\SuperAdmin\SeatingPlanController::class, 'index'])->name('index');
+    Route::get('/{test}', [\App\Http\Controllers\SuperAdmin\SeatingPlanController::class, 'show'])->name('show');
+    Route::get('/{test}/download', [\App\Http\Controllers\SuperAdmin\SeatingPlanController::class, 'download'])->name('download');
+});
     });
 });
 

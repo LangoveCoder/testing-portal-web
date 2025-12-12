@@ -32,69 +32,132 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <!-- Manage Colleges -->
-                    <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 hover:shadow-lg transition">
-                        <h3 class="text-lg font-bold text-blue-800 mb-2">Manage Colleges</h3>
-                        <p class="text-gray-600 mb-4">Register, view, and manage colleges</p>
-                        <a href="{{ route('super-admin.colleges.index') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block">
-                            Go to Colleges
-                        </a>
-                    </div>
+                    <a href="{{ route('super-admin.colleges.index') }}" class="block">
+                        <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:scale-105 transition duration-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-blue-100 text-sm font-semibold uppercase">Colleges</p>
+                                    <p class="text-white text-3xl font-bold mt-2">Manage</p>
+                                </div>
+                                <div class="text-white text-5xl">🏛️</div>
+                            </div>
+                            <div class="mt-4 text-blue-100 text-sm">
+                                Register, view, and manage colleges
+                            </div>
+                        </div>
+                    </a>
 
                     <!-- Manage Tests -->
-                    <div class="bg-green-50 border-2 border-green-200 rounded-lg p-6 hover:shadow-lg transition">
-                        <h3 class="text-lg font-bold text-green-800 mb-2">Manage Tests</h3>
-                        <p class="text-gray-600 mb-4">Create and schedule tests</p>
-                        <a href="{{ route('super-admin.tests.index') }}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 inline-block">
-    Go to Tests
-</a>
-                    </div>
+                    <a href="{{ route('super-admin.tests.index') }}" class="block">
+                        <div class="bg-gradient-to-br from-green-400 to-green-600 rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:scale-105 transition duration-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-green-100 text-sm font-semibold uppercase">Tests</p>
+                                    <p class="text-white text-3xl font-bold mt-2">Manage</p>
+                                </div>
+                                <div class="text-white text-5xl">📝</div>
+                            </div>
+                            <div class="mt-4 text-green-100 text-sm">
+                                Create and schedule tests
+                            </div>
+                        </div>
+                    </a>
 
                     <!-- Manage Students -->
-                    <div class="bg-purple-50 border-2 border-purple-200 rounded-lg p-6 hover:shadow-lg transition">
-                        <h3 class="text-lg font-bold text-purple-800 mb-2">Manage Students</h3>
-                        <p class="text-gray-600 mb-4">View and manage registrations</p>
-                        <a href="{{ route('super-admin.students.index') }}" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 inline-block">
-    Go to Students
-</a>
-                    </div>
+                    <a href="{{ route('super-admin.students.index') }}" class="block">
+                        <div class="bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:scale-105 transition duration-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-purple-100 text-sm font-semibold uppercase">Students</p>
+                                    <p class="text-white text-3xl font-bold mt-2">Manage</p>
+                                </div>
+                                <div class="text-white text-5xl">👥</div>
+                            </div>
+                            <div class="mt-4 text-purple-100 text-sm">
+                                View and manage registrations
+                            </div>
+                        </div>
+                    </a>
 
                     <!-- Generate Roll Numbers -->
-                    <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6 hover:shadow-lg transition">
-                        <h3 class="text-lg font-bold text-yellow-800 mb-2">Roll Number Slips</h3>
-                        <p class="text-gray-600 mb-4">Generate roll number slips</p>
-                        <a href="{{ route('super-admin.roll-numbers.index') }}" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 inline-block">
-    Generate Roll Numbers
-</a>
-                    </div>
+                    <a href="{{ route('super-admin.roll-numbers.index') }}" class="block">
+                        <div class="bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:scale-105 transition duration-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-yellow-100 text-sm font-semibold uppercase">Roll Numbers</p>
+                                    <p class="text-white text-3xl font-bold mt-2">Generate</p>
+                                </div>
+                                <div class="text-white text-5xl">🎲</div>
+                            </div>
+                            <div class="mt-4 text-yellow-100 text-sm">
+                                Generate roll numbers with seating
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Seating Plans -->
+                    <a href="{{ route('super-admin.seating-plans.index') }}" class="block">
+                        <div class="bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:scale-105 transition duration-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-indigo-100 text-sm font-semibold uppercase">Seating Plans</p>
+                                    <p class="text-white text-3xl font-bold mt-2">View/Print</p>
+                                </div>
+                                <div class="text-white text-5xl">🪑</div>
+                            </div>
+                            <div class="mt-4 text-indigo-100 text-sm">
+                                Hall-wise seat arrangements
+                            </div>
+                        </div>
+                    </a>
 
                     <!-- Manage Results -->
-                    <div class="bg-red-50 border-2 border-red-200 rounded-lg p-6 hover:shadow-lg transition">
-                        <h3 class="text-lg font-bold text-red-800 mb-2">Manage Results</h3>
-                        <p class="text-gray-600 mb-4">Upload and publish results</p>
-                        <a href="{{ route('super-admin.results.index') }}" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 inline-block">
-    Go to Results
-</a>
-                    </div>
-      <!-- Bulk Student Upload Card -->
-<div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition duration-300">
-    <h3 class="text-xl font-bold text-indigo-700 mb-2">Bulk Student Upload</h3>
-    <p class="text-gray-600 mb-4">Upload students via Excel</p>
-    <p class="text-gray-700 mb-4">
-        Download Excel template with dropdowns, colleges fill student data with photos, and upload in bulk for faster registration.
-    </p>
-    <a href="{{ route('super-admin.bulk-upload.index') }}" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 inline-block">
-        Bulk Upload
-    </a>
-</div>
+                    <a href="{{ route('super-admin.results.index') }}" class="block">
+                        <div class="bg-gradient-to-br from-red-400 to-red-600 rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:scale-105 transition duration-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-red-100 text-sm font-semibold uppercase">Results</p>
+                                    <p class="text-white text-3xl font-bold mt-2">Manage</p>
+                                </div>
+                                <div class="text-white text-5xl">📊</div>
+                            </div>
+                            <div class="mt-4 text-red-100 text-sm">
+                                Upload and publish results
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Bulk Student Upload -->
+                    <a href="{{ route('super-admin.bulk-upload.index') }}" class="block">
+                        <div class="bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:scale-105 transition duration-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-cyan-100 text-sm font-semibold uppercase">Bulk Upload</p>
+                                    <p class="text-white text-3xl font-bold mt-2">Excel Import</p>
+                                </div>
+                                <div class="text-white text-5xl">📤</div>
+                            </div>
+                            <div class="mt-4 text-cyan-100 text-sm">
+                                Upload students via Excel template
+                            </div>
+                        </div>
+                    </a>
 
                     <!-- Audit Logs -->
-                    <div class="bg-gray-50 border-2 border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
-                        <h3 class="text-lg font-bold text-gray-800 mb-2">Audit Logs</h3>
-                        <p class="text-gray-600 mb-4">View system activity logs</p>
-                        <a href="{{ route('super-admin.audit-logs.index') }}" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 inline-block">
-    View Logs
-</a>
-                    </div>
+                    <a href="{{ route('super-admin.audit-logs.index') }}" class="block">
+                        <div class="bg-gradient-to-br from-gray-400 to-gray-600 rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:scale-105 transition duration-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-100 text-sm font-semibold uppercase">Audit Logs</p>
+                                    <p class="text-white text-3xl font-bold mt-2">View Logs</p>
+                                </div>
+                                <div class="text-white text-5xl">📋</div>
+                            </div>
+                            <div class="mt-4 text-gray-100 text-sm">
+                                View system activity logs
+                            </div>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>

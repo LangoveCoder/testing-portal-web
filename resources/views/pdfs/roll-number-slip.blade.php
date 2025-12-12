@@ -132,27 +132,6 @@
             margin-bottom: 15px;
         }
         
-        .qr-box {
-            text-align: center;
-            margin-top: 10px;
-        }
-        
-        .qr-title {
-            font-size: 9px;
-            color: #6B7280;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        
-        .qr-code {
-            width: 100px;
-            height: 100px;
-            border: 2px solid #00B4D8;
-            border-radius: 5px;
-            padding: 5px;
-            background: white;
-        }
-        
         .right-column {
             display: table-cell;
             vertical-align: top;
@@ -338,26 +317,19 @@
                     </div>
                 @endif
                 
-                <!-- QR Code -->
-                @php
-                    $venue = \App\Models\TestVenue::where('test_id', $student->test_id)
-                        ->where('test_district_id', $student->test_district_id)
-                        ->first();
-                @endphp
-                
-                @if($venue && $venue->google_maps_link)
-                <div class="qr-box">
-                    <div class="qr-title">📍 Scan for Venue Location</div>
-                    @php
-                        $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::size(100)
-                            ->margin(0)
-                            ->format('png')
-                            ->generate($venue->google_maps_link);
-                        $qrCodeBase64 = base64_encode($qrCode);
-                    @endphp
-                    <img src="data:image/png;base64,{{ $qrCodeBase64 }}" alt="QR Code" class="qr-code">
+                <!-- QR Code - FORCED DISPLAY -->
+                <div style="text-align: center; margin-top: 10px;">
+                    <div style="font-size: 9px; color: #6B7280; margin-bottom: 5px; font-weight: 600;">📍 Venue Location</div>
+                    @if(isset($qrCodeBase64) && $qrCodeBase64)
+                        <img src="data:image/png;base64,{{ $qrCodeBase64 }}" alt="QR Code" style="width: 100px; height: 100px; border: 2px solid #00B4D8; border-radius: 5px; padding: 5px;">
+                    @else
+                        <div style="width: 100px; height: 100px; border: 2px solid #DC2626; display: flex; align-items: center; justify-content: center; font-size: 8px; text-align: center; padding: 5px; background: #FEE2E2; color: #DC2626;">
+                            QR: {{ isset($venue) ? 'Venue OK' : 'No Venue' }}<br>
+                            Link: {{ isset($venue) && $venue && $venue->google_maps_link ? 'YES' : 'NO' }}<br>
+                            Base64: {{ isset($qrCodeBase64) ? 'YES' : 'NO' }}
+                        </div>
+                    @endif
                 </div>
-                @endif
             </div>
             
             <div class="right-column">
@@ -423,7 +395,7 @@
         </div>
         
         <!-- Venue Info -->
-        @if($venue)
+        @if(isset($venue) && $venue)
         <div class="venue-info">
             <strong>Test Venue:</strong> {{ $venue->venue_name }}<br>
             <strong>Address:</strong> {{ $venue->venue_address }}
