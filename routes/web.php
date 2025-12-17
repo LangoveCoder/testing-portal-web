@@ -149,6 +149,12 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
     Route::get('/{test}', [\App\Http\Controllers\SuperAdmin\SeatingPlanController::class, 'show'])->name('show');
     Route::get('/{test}/download', [\App\Http\Controllers\SuperAdmin\SeatingPlanController::class, 'download'])->name('download');
 });
+// Attendance Sheets
+Route::prefix('attendance-sheets')->name('attendance-sheets.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\SuperAdmin\AttendanceSheetController::class, 'index'])->name('index');
+    Route::get('/{test}', [\App\Http\Controllers\SuperAdmin\AttendanceSheetController::class, 'show'])->name('show');
+    Route::get('/{test}/download', [\App\Http\Controllers\SuperAdmin\AttendanceSheetController::class, 'download'])->name('download');
+});
     });
 });
 
@@ -221,4 +227,10 @@ Route::prefix('student')->name('student.')->group(function () {
 
     // Roll Slip PDF Download
     Route::post('/roll-slip/download', [App\Http\Controllers\Student\RollNumberSlipController::class, 'download'])->name('roll-slip.download');
+});
+
+Route::prefix('api/biometric')->group(function () {
+    Route::get('colleges', [App\Http\Controllers\Api\StudentBiometricController::class, 'getActiveColleges']);
+    Route::post('student/info', [App\Http\Controllers\Api\StudentBiometricController::class, 'getStudentInfo']);
+    Route::post('student/upload-photo', [App\Http\Controllers\Api\StudentBiometricController::class, 'uploadTestPhoto']);
 });

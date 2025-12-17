@@ -13,6 +13,9 @@ class Student extends Model
     'test_id',
     'test_district_id',
     'picture',
+    'fingerprint_template',      // ADD THIS
+    'fingerprint_image',          // ADD THIS
+    'test_photo',
     'name',
     'cnic',
     'father_name',

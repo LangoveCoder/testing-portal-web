@@ -111,6 +111,22 @@
                         </div>
                     </a>
 
+                    <!-- Attendance Sheets -->
+<a href="{{ route('super-admin.attendance-sheets.index') }}" class="block">
+    <div class="bg-gradient-to-br from-teal-400 to-teal-600 rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:scale-105 transition duration-200">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-teal-100 text-sm font-semibold uppercase">Attendance Sheets</p>
+                <p class="text-white text-3xl font-bold mt-2">Generate</p>
+            </div>
+            <div class="text-white text-5xl">✅</div>
+        </div>
+        <div class="mt-4 text-teal-100 text-sm">
+            Hall-wise attendance lists
+        </div>
+    </div>
+</a>
+
                     <!-- Manage Results -->
                     <a href="{{ route('super-admin.results.index') }}" class="block">
                         <div class="bg-gradient-to-br from-red-400 to-red-600 rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:scale-105 transition duration-200">
