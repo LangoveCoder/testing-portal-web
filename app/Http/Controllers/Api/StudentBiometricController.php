@@ -335,47 +335,82 @@ class StudentBiometricController extends Controller
         ]);
     }
 
-    /**
-     * Bulk download students for offline use (Windows app)
-     */
     public function bulkDownload(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'test_id' => 'required|exists:tests,id'
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        'test_id' => 'nullable|exists:tests,id',
+        'college_id' => 'nullable|exists:colleges,id',
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $students = Student::where('test_id', $request->test_id)
-            ->whereNotNull('roll_number')
-            ->select([
-                'id',
-                'roll_number',
-                'name',
-                'father_name',
-                'cnic',
-                'gender',
-                'picture',
-                'fingerprint_template',
-                'fingerprint_image',
-                'test_photo',
-                'hall_number',
-                'zone_number',
-                'row_number',
-                'seat_number'
-            ])
-            ->get();
-
+    if ($validator->fails()) {
         return response()->json([
-            'success' => true,
-            'count' => $students->count(),
-            'data' => $students
-        ]);
+            'success' => false,
+            'message' => 'Validation error',
+            'errors' => $validator->errors()
+        ], 422);
     }
+
+    // Build query
+    $query = Student::whereNotNull('roll_number');
+
+    // Filter by test if provided
+    if ($request->has('test_id')) {
+        $query->where('test_id', $request->test_id);
+    }
+
+    // Filter by college if provided
+    if ($request->has('college_id')) {
+        $query->whereHas('test', function($q) use ($request) {
+            $q->where('college_id', $request->college_id);
+        });
+    }
+
+    // Get students with relationships
+    $students = $query->with(['test.college', 'testDistrict'])
+        ->select([
+            'id',
+            'test_id',
+            'test_district_id',
+            'roll_number',
+            'name',
+            'father_name',
+            'cnic',
+            'gender',
+            'picture',
+            'test_photo',
+            'hall_number',
+            'zone_number',
+            'row_number',
+            'seat_number'
+        ])
+        ->get()
+        ->map(function($student) {
+            return [
+                'id' => $student->id,
+                'roll_number' => $student->roll_number,
+                'name' => $student->name,
+                'father_name' => $student->father_name,
+                'cnic' => $student->cnic,
+                'gender' => $student->gender,
+                'picture' => $student->picture ? asset('storage/' . $student->picture) : null,
+                'test_photo' => $student->test_photo ? asset('storage/' . $student->test_photo) : null,
+                'test_photo_captured' => !is_null($student->test_photo),
+                'test_name' => $student->test->college->name ?? 'N/A',
+                'test_date' => $student->test->test_date->format('d M Y'),
+                'hall_number' => $student->hall_number,
+                'zone_number' => $student->zone_number,
+                'row_number' => $student->row_number,
+                'seat_number' => $student->seat_number,
+                'venue' => $student->testDistrict 
+                    ? $student->testDistrict->district . ', ' . $student->testDistrict->province 
+                    : 'N/A'
+            ];
+        });
+
+    return response()->json([
+        'success' => true,
+        'count' => $students->count(),
+        'data' => $students
+    ]);
+}
 }
