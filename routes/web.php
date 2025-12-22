@@ -88,10 +88,6 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
         Route::post('colleges/{college}/add-test-districts', [\App\Http\Controllers\SuperAdmin\CollegeController::class, 'storeTestDistricts'])->name('colleges.store-test-districts');
         Route::get('colleges/{college}/test-districts', [\App\Http\Controllers\SuperAdmin\CollegeController::class, 'getTestDistricts'])->name('colleges.test-districts');
         
-        // Inside super-admin routes, after the colleges resource route:
-        Route::get('colleges/{college}/add-test-districts', [\App\Http\Controllers\SuperAdmin\CollegeController::class, 'addTestDistricts'])->name('colleges.add-test-districts');
-        Route::post('colleges/{college}/add-test-districts', [\App\Http\Controllers\SuperAdmin\CollegeController::class, 'storeTestDistricts'])->name('colleges.store-test-districts');
-        
         // Test Management
         Route::resource('tests', \App\Http\Controllers\SuperAdmin\TestController::class);
 
@@ -144,17 +140,29 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
             Route::get('/{test}/download-pdf', [\App\Http\Controllers\SuperAdmin\MeritListController::class, 'downloadComprehensivePdf'])->name('download-pdf');
         });
 
+        // Seating Plans
         Route::prefix('seating-plans')->name('seating-plans.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\SuperAdmin\SeatingPlanController::class, 'index'])->name('index');
-    Route::get('/{test}', [\App\Http\Controllers\SuperAdmin\SeatingPlanController::class, 'show'])->name('show');
-    Route::get('/{test}/download', [\App\Http\Controllers\SuperAdmin\SeatingPlanController::class, 'download'])->name('download');
-});
-// Attendance Sheets
-Route::prefix('attendance-sheets')->name('attendance-sheets.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\SuperAdmin\AttendanceSheetController::class, 'index'])->name('index');
-    Route::get('/{test}', [\App\Http\Controllers\SuperAdmin\AttendanceSheetController::class, 'show'])->name('show');
-    Route::get('/{test}/download', [\App\Http\Controllers\SuperAdmin\AttendanceSheetController::class, 'download'])->name('download');
-});
+            Route::get('/', [\App\Http\Controllers\SuperAdmin\SeatingPlanController::class, 'index'])->name('index');
+            Route::get('/{test}', [\App\Http\Controllers\SuperAdmin\SeatingPlanController::class, 'show'])->name('show');
+            Route::get('/{test}/download', [\App\Http\Controllers\SuperAdmin\SeatingPlanController::class, 'download'])->name('download');
+        });
+        
+        // Attendance Sheets
+        Route::prefix('attendance-sheets')->name('attendance-sheets.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\SuperAdmin\AttendanceSheetController::class, 'index'])->name('index');
+            Route::get('/{test}', [\App\Http\Controllers\SuperAdmin\AttendanceSheetController::class, 'show'])->name('show');
+            Route::get('/{test}/download', [\App\Http\Controllers\SuperAdmin\AttendanceSheetController::class, 'download'])->name('download');
+        });
+        
+        // Biometric Operators
+        Route::prefix('biometric-operators')->name('biometric-operators.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\SuperAdmin\BiometricOperatorController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\SuperAdmin\BiometricOperatorController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\SuperAdmin\BiometricOperatorController::class, 'store'])->name('store');
+            Route::get('/{biometricOperator}/edit', [\App\Http\Controllers\SuperAdmin\BiometricOperatorController::class, 'edit'])->name('edit');
+            Route::put('/{biometricOperator}', [\App\Http\Controllers\SuperAdmin\BiometricOperatorController::class, 'update'])->name('update');
+            Route::delete('/{biometricOperator}', [\App\Http\Controllers\SuperAdmin\BiometricOperatorController::class, 'destroy'])->name('destroy');
+        });
     });
 });
 
@@ -194,6 +202,7 @@ Route::prefix('college')->name('college.')->group(function () {
 
         Route::post('/download-bulk-template', [\App\Http\Controllers\SuperAdmin\BulkUploadController::class, 'downloadTemplate'])->name('download-bulk-template');
 
+        // Results
         Route::prefix('results')->name('results.')->group(function () {
             Route::get('/', [\App\Http\Controllers\College\ResultController::class, 'index'])->name('index');
             Route::get('/{test}', [\App\Http\Controllers\College\ResultController::class, 'show'])->name('show');
@@ -204,6 +213,17 @@ Route::prefix('college')->name('college.')->group(function () {
             Route::get('/', [\App\Http\Controllers\College\ReportController::class, 'index'])->name('index');
             Route::post('/student-list', [\App\Http\Controllers\College\ReportController::class, 'downloadStudentList'])->name('download-student-list');
             Route::post('/result-report', [\App\Http\Controllers\College\ReportController::class, 'downloadResultReport'])->name('download-result-report');
+        });
+        
+        // ============================================
+        // FINGERPRINT VERIFICATION (NEW)
+        // ============================================
+        Route::prefix('fingerprint-verification')->name('fingerprint-verification.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\College\FingerprintVerificationController::class, 'index'])->name('index');
+            Route::post('/load-student', [\App\Http\Controllers\College\FingerprintVerificationController::class, 'loadStudent'])->name('load-student');
+            Route::post('/log', [\App\Http\Controllers\College\FingerprintVerificationController::class, 'logVerification'])->name('log');
+            Route::get('/history/{studentId}', [\App\Http\Controllers\College\FingerprintVerificationController::class, 'getVerificationHistory'])->name('history');
+            Route::get('/statistics', [\App\Http\Controllers\College\FingerprintVerificationController::class, 'getStatistics'])->name('statistics');
         });
     });
 });
@@ -229,8 +249,42 @@ Route::prefix('student')->name('student.')->group(function () {
     Route::post('/roll-slip/download', [App\Http\Controllers\Student\RollNumberSlipController::class, 'download'])->name('roll-slip.download');
 });
 
+// ============================================
+// API ROUTES (Biometric Android App)
+// ============================================
+
 Route::prefix('api/biometric')->group(function () {
     Route::get('colleges', [App\Http\Controllers\Api\StudentBiometricController::class, 'getActiveColleges']);
     Route::post('student/info', [App\Http\Controllers\Api\StudentBiometricController::class, 'getStudentInfo']);
     Route::post('student/upload-photo', [App\Http\Controllers\Api\StudentBiometricController::class, 'uploadTestPhoto']);
+});
+
+// ============================================
+// BIOMETRIC OPERATOR ROUTES
+// ============================================
+
+Route::prefix('biometric-operator')->name('biometric-operator.')->group(function () {
+    // Authentication
+    Route::get('/login', [App\Http\Controllers\Auth\BiometricOperatorAuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [App\Http\Controllers\Auth\BiometricOperatorAuthController::class, 'login'])->name('login.post');
+    
+    // Protected Routes (require authentication)
+    Route::middleware('auth:biometric_operator')->group(function () {
+        Route::post('/logout', [App\Http\Controllers\Auth\BiometricOperatorAuthController::class, 'logout'])->name('logout');
+        
+        Route::get('/dashboard', function () {
+            $operator = Auth::guard('biometric_operator')->user();
+            $assignedTests = $operator->tests();
+            
+            return view('biometric_operator.dashboard', compact('assignedTests'));
+        })->name('dashboard');
+        
+        // Biometric Registration
+        Route::prefix('registration')->name('registration.')->group(function () {
+            Route::get('/', [App\Http\Controllers\BiometricOperator\RegistrationController::class, 'index'])->name('index');
+            Route::post('/search-student', [App\Http\Controllers\BiometricOperator\RegistrationController::class, 'searchStudent'])->name('search-student');
+            Route::post('/save-fingerprint', [App\Http\Controllers\BiometricOperator\RegistrationController::class, 'saveFingerprint'])->name('save-fingerprint');
+            Route::get('/history', [App\Http\Controllers\BiometricOperator\RegistrationController::class, 'history'])->name('history');
+        });
+    });
 });

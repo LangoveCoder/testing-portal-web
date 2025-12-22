@@ -126,6 +126,21 @@
         </div>
     </div>
 </a>
+<!-- Biometric Operators -->
+<a href="{{ route('super-admin.biometric-operators.index') }}" class="block">
+    <div class="bg-gradient-to-br from-pink-400 to-pink-600 rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:scale-105 transition duration-200">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-pink-100 text-sm font-semibold uppercase">Biometric Operators</p>
+                <p class="text-white text-3xl font-bold mt-2">Manage</p>
+            </div>
+            <div class="text-white text-5xl">🔐</div>
+        </div>
+        <div class="mt-4 text-pink-100 text-sm">
+            Manage fingerprint operators
+        </div>
+    </div>
+</a>
 
                     <!-- Manage Results -->
                     <a href="{{ route('super-admin.results.index') }}" class="block">

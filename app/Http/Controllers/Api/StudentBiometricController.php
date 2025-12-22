@@ -40,52 +40,57 @@ class StudentBiometricController extends Controller
      * Get student info by roll number (for Android app preview before photo capture)
      */
     public function getStudentInfo(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'roll_number' => 'required|string'
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        'roll_number' => 'required|string'
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $student = Student::where('roll_number', $request->roll_number)
-            ->with(['test', 'testDistrict'])
-            ->first();
-
-        if (!$student) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Student not found with this roll number'
-            ], 404);
-        }
-
+    if ($validator->fails()) {
         return response()->json([
-            'success' => true,
-            'data' => [
-                'id' => $student->id,
-                'roll_number' => $student->roll_number,
-                'name' => $student->name,
-                'father_name' => $student->father_name,
-                'cnic' => $student->cnic,
-                'gender' => $student->gender,
-                'picture' => $student->picture ? asset('storage/' . $student->picture) : null,
-                'test_photo' => $student->test_photo ? asset('storage/' . $student->test_photo) : null,
-                'test_photo_captured' => !is_null($student->test_photo),
-                'test_name' => $student->test->college->name ?? 'N/A',
-                'test_date' => $student->test->test_date->format('d M Y'),
-                'hall_number' => $student->hall_number,
-                'zone_number' => $student->zone_number,
-                'row_number' => $student->row_number,
-                'seat_number' => $student->seat_number,
-                'venue' => $student->testDistrict->district . ', ' . $student->testDistrict->province
-            ]
-        ]);
+            'success' => false,
+            'message' => 'Validation error',
+            'errors' => $validator->errors()
+        ], 422);
     }
+
+    $student = Student::where('roll_number', $request->roll_number)
+        ->whereNotNull('roll_number')
+        ->with(['test.college', 'testDistrict'])
+        ->first();
+
+    if (!$student) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Student not found'
+        ], 404);
+    }
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'id' => $student->id,
+            'roll_number' => $student->roll_number,
+            'name' => $student->name,
+            'father_name' => $student->father_name,
+            'cnic' => $student->cnic,
+            'gender' => $student->gender,
+            'picture' => $student->picture ? asset('storage/' . $student->picture) : null,
+            'test_photo' => $student->test_photo ? asset('storage/' . $student->test_photo) : null,
+            'test_photo_captured' => !is_null($student->test_photo),
+            'test_name' => $student->test->college->name ?? 'N/A',
+            'test_date' => $student->test->test_date->format('d M Y'),
+            'college_id' => $student->test->college_id,  // ADD THIS
+            'college_name' => $student->test->college->name ?? 'N/A',  // ADD THIS
+            'hall_number' => $student->hall_number,
+            'zone_number' => $student->zone_number,
+            'row_number' => $student->row_number,
+            'seat_number' => $student->seat_number,
+            'venue' => $student->testDistrict 
+                ? $student->testDistrict->district . ', ' . $student->testDistrict->province 
+                : 'N/A'
+        ]
+    ]);
+}
 
     /**
      * Upload test photo (for Android app after camera capture)
