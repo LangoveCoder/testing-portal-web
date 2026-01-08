@@ -3,31 +3,31 @@
 @section('title', 'Check Roll Number')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 dark:from-blue-700 dark:to-purple-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full">
         <!-- Header Card -->
-        <div class="bg-white rounded-lg shadow-xl p-8 mb-6">
+        <div class="bg-white dark:bg-dark-800 rounded-lg shadow-xl p-8 mb-6 border border-gray-200 dark:border-dark-700">
             <div class="text-center">
-                <svg class="mx-auto h-16 w-16 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="mx-auto h-16 w-16 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <h2 class="mt-4 text-3xl font-extrabold text-gray-900">
+                <h2 class="mt-4 text-3xl font-extrabold text-gray-900 dark:text-gray-100">
                     Check Your Roll Number
                 </h2>
-                <p class="mt-2 text-sm text-gray-600">
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     Enter your CNIC to view your roll number and seat details
                 </p>
             </div>
         </div>
 
         <!-- Search Form Card -->
-        <div class="bg-white rounded-lg shadow-xl p-8">
+        <div class="bg-white dark:bg-dark-800 rounded-lg shadow-xl p-8 border border-gray-200 dark:border-dark-700">
             <form method="POST" action="{{ route('student.check-roll-number.search') }}">
                 @csrf
                 
                 <!-- CNIC Input -->
                 <div class="mb-6">
-                    <label for="cnic" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="cnic" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Student CNIC
                     </label>
                     <input type="text" 

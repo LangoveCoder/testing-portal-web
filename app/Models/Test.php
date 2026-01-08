@@ -52,4 +52,20 @@ class Test extends Model
     {
         return $this->hasMany(Result::class);
     }
+
+    // Attendance relationships
+    public function attendance()
+    {
+        return $this->hasMany(StudentAttendance::class);
+    }
+
+    public function presentStudents()
+    {
+        return $this->hasMany(StudentAttendance::class)->where('attendance_status', 'present');
+    }
+
+    public function absentStudents()
+    {
+        return $this->hasMany(StudentAttendance::class)->where('attendance_status', 'absent');
+    }
 }

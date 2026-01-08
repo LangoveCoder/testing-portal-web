@@ -20,14 +20,29 @@ class BiometricStatusController extends Controller
         $query = Student::whereHas('test', function($q) use ($college) {
                 $q->where('college_id', $college->id);
             })
-            ->with(['test']);
+            ->with(['test.college', 'attendance']);
 
         // Filter by test
         if ($request->filled('test_id')) {
             $query->where('test_id', $request->test_id);
         }
 
-        // Filter by status
+        // Filter by attendance status
+        if ($request->filled('attendance_status')) {
+            if ($request->attendance_status === 'present') {
+                $query->whereHas('attendance', function($q) {
+                    $q->where('attendance_status', 'present');
+                });
+            } elseif ($request->attendance_status === 'absent') {
+                $query->whereHas('attendance', function($q) {
+                    $q->where('attendance_status', 'absent');
+                });
+            } elseif ($request->attendance_status === 'not_marked') {
+                $query->whereDoesntHave('attendance');
+            }
+        }
+
+        // Filter by biometric status
         if ($request->filled('status')) {
             switch ($request->status) {
                 case 'complete':
@@ -51,6 +66,22 @@ class BiometricStatusController extends Controller
                 case 'no_registration_photo':
                     $query->whereNull('picture');
                     break;
+                case 'present_incomplete':
+                    // Present students with incomplete biometrics
+                    $query->whereHas('attendance', function($q) {
+                        $q->where('attendance_status', 'present');
+                    })->where(function($q) {
+                        $q->whereNull('picture')
+                          ->orWhereNull('test_photo')
+                          ->orWhereNull('fingerprint_template');
+                    });
+                    break;
+                case 'present_no_fingerprint':
+                    // Present students without fingerprints
+                    $query->whereHas('attendance', function($q) {
+                        $q->where('attendance_status', 'present');
+                    })->whereNull('fingerprint_template');
+                    break;
             }
         }
 
@@ -66,7 +97,7 @@ class BiometricStatusController extends Controller
 
         $students = $query->orderBy('roll_number')->paginate(50);
 
-        // Statistics for this college
+        // Enhanced statistics for this college including attendance
         $stats = [
             'total' => Student::whereHas('test', function($q) use ($college) {
                 $q->where('college_id', $college->id);
@@ -89,10 +120,26 @@ class BiometricStatusController extends Controller
                 $q->whereNull('picture')
                   ->orWhereNull('test_photo')
                   ->orWhereNull('fingerprint_template');
-            })->count()
+            })->count(),
+            'present_students' => Student::whereHas('test', function($q) use ($college) {
+                $q->where('college_id', $college->id);
+            })->whereHas('attendance', function($q) {
+                $q->where('attendance_status', 'present');
+            })->count(),
+            'present_with_fingerprint' => Student::whereHas('test', function($q) use ($college) {
+                $q->where('college_id', $college->id);
+            })->whereHas('attendance', function($q) {
+                $q->where('attendance_status', 'present');
+            })->whereNotNull('fingerprint_template')->count(),
+            'present_without_fingerprint' => Student::whereHas('test', function($q) use ($college) {
+                $q->where('college_id', $college->id);
+            })->whereHas('attendance', function($q) {
+                $q->where('attendance_status', 'present');
+            })->whereNull('fingerprint_template')->count(),
         ];
 
         $tests = Test::where('college_id', $college->id)
+            ->with('college')
             ->orderBy('test_date', 'desc')
             ->get();
 
@@ -109,9 +156,21 @@ class BiometricStatusController extends Controller
         $student = Student::whereHas('test', function($q) use ($college) {
                 $q->where('college_id', $college->id);
             })
-            ->with(['test'])
+            ->with(['test.college', 'attendance'])
             ->findOrFail($id);
+
+        // Get biometric logs for this student
+        $biometricLogs = \App\Models\BiometricLog::where('student_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
         
-        return view('college.biometric_status.show', compact('student'));
+        // Get fingerprint verifications
+        $verifications = \App\Models\FingerprintVerification::where('student_id', $id)
+            ->orderBy('verified_at', 'desc')
+            ->limit(5)
+            ->get();
+        
+        return view('college.biometric_status.show', compact('student', 'biometricLogs', 'verifications'));
     }
 }

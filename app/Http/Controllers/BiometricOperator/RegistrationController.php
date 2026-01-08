@@ -39,7 +39,7 @@ class RegistrationController extends Controller
         // Search by roll number or CNIC
         $student = Student::where('roll_number', $searchTerm)
             ->orWhere('cnic', $searchTerm)
-            ->with(['test'])
+            ->with(['test.college'])
             ->first();
 
         if (!$student) {
@@ -64,7 +64,7 @@ class RegistrationController extends Controller
                 'picture' => $student->picture ? asset('storage/' . $student->picture) : null,
                 'test_photo' => $student->test_photo ? asset('storage/' . $student->test_photo) : null,
                 'test_id' => $student->test_id,
-                'test_name' => $student->test->name ?? 'N/A',
+                'test_name' => $student->test->college->name ?? 'N/A',
                 'venue' => $student->test->venue ?? 'N/A',
                 'hall' => $student->hall_number ?? 'N/A',
                 'zone' => $student->zone_number ?? 'N/A',

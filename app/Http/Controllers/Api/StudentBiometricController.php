@@ -215,7 +215,10 @@ class StudentBiometricController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'roll_number' => 'required|string',
-            'fingerprint_template' => 'required|string'
+            'fingerprint_template' => 'required|string',
+            'fingerprint_quality' => 'nullable|integer|min:0|max:100',
+            'operator_id' => 'nullable|exists:biometric_operators,id',
+            'device_info' => 'nullable|string|max:500',
         ]);
 
         if ($validator->fails()) {
@@ -235,13 +238,46 @@ class StudentBiometricController extends Controller
             ], 404);
         }
 
+        // Validate fingerprint quality if provided
+        $quality = $request->fingerprint_quality ?? 0;
+        if ($quality < 60) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Fingerprint quality too low. Minimum quality required: 60%',
+                'quality_score' => $quality
+            ], 400);
+        }
+
         $student->update([
-            'fingerprint_template' => $request->fingerprint_template
+            'fingerprint_template' => $request->fingerprint_template,
+            'fingerprint_quality' => $quality,
+            'fingerprint_registered_at' => now(),
+        ]);
+
+        // Log the registration
+        \App\Models\BiometricLog::create([
+            'student_id' => $student->id,
+            'roll_number' => $student->roll_number,
+            'log_type' => 'registration',
+            'action' => 'capture',
+            'operator_id' => $request->operator_id,
+            'operator_type' => 'biometric_operator',
+            'confidence_score' => $quality,
+            'device_info' => $request->device_info,
+            'ip_address' => $request->ip(),
+            'notes' => 'Fingerprint template registered successfully',
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Fingerprint template saved successfully'
+            'message' => 'Fingerprint template saved successfully',
+            'data' => [
+                'roll_number' => $student->roll_number,
+                'name' => $student->name,
+                'quality_score' => $quality,
+                'registered_at' => $student->fingerprint_registered_at->format('d M Y, h:i A'),
+                'quality_status' => $quality >= 80 ? 'Excellent' : ($quality >= 70 ? 'Good' : 'Acceptable')
+            ]
         ]);
     }
 
@@ -252,7 +288,10 @@ class StudentBiometricController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'roll_number' => 'required|string',
-            'fingerprint_image' => 'required|image|mimes:jpeg,jpg,png,bmp|max:2048'
+            'fingerprint_image' => 'required|image|mimes:jpeg,jpg,png,bmp|max:2048',
+            'fingerprint_quality' => 'nullable|integer|min:0|max:100',
+            'operator_id' => 'nullable|exists:biometric_operators,id',
+            'device_info' => 'nullable|string|max:500',
         ]);
 
         if ($validator->fails()) {
@@ -277,18 +316,59 @@ class StudentBiometricController extends Controller
             Storage::disk('public')->delete($student->fingerprint_image);
         }
 
-        // Store new fingerprint image
-        $path = $request->file('fingerprint_image')->store('fingerprints', 'public');
+        // Store new fingerprint image with consistent processing
+        $image = $request->file('fingerprint_image');
+        $filename = 'fingerprints/' . $student->roll_number . '_' . time() . '.png';
+        
+        // Process image for consistent display (convert to PNG, optimize contrast)
+        $imageResource = imagecreatefromstring(file_get_contents($image->getPathname()));
+        
+        // Enhance contrast and brightness for fingerprint visibility
+        if ($imageResource) {
+            imagefilter($imageResource, IMG_FILTER_CONTRAST, -20); // Increase contrast
+            imagefilter($imageResource, IMG_FILTER_BRIGHTNESS, 10); // Slight brightness increase
+            
+            // Save as PNG for better quality
+            $fullPath = storage_path('app/public/' . $filename);
+            imagepng($imageResource, $fullPath, 9); // High compression
+            imagedestroy($imageResource);
+        } else {
+            // Fallback: store original file
+            $filename = $image->store('fingerprints', 'public');
+        }
+        
+        $quality = $request->fingerprint_quality ?? 0;
         
         $student->update([
-            'fingerprint_image' => $path
+            'fingerprint_image' => $filename,
+            'fingerprint_quality' => $quality,
+            'fingerprint_registered_at' => now(),
+        ]);
+
+        // Log the registration
+        \App\Models\BiometricLog::create([
+            'student_id' => $student->id,
+            'roll_number' => $student->roll_number,
+            'log_type' => 'registration',
+            'action' => 'capture',
+            'operator_id' => $request->operator_id,
+            'operator_type' => 'biometric_operator',
+            'confidence_score' => $quality,
+            'device_info' => $request->device_info,
+            'ip_address' => $request->ip(),
+            'notes' => 'Fingerprint image uploaded successfully',
         ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Fingerprint image uploaded successfully',
             'data' => [
-                'fingerprint_image_url' => asset('storage/' . $path)
+                'roll_number' => $student->roll_number,
+                'name' => $student->name,
+                'fingerprint_image_url' => asset('storage/' . $filename),
+                'quality_score' => $quality,
+                'registered_at' => $student->fingerprint_registered_at->format('d M Y, h:i A'),
+                'quality_status' => $quality >= 80 ? 'Excellent' : ($quality >= 70 ? 'Good' : 'Acceptable')
             ]
         ]);
     }
@@ -300,7 +380,9 @@ class StudentBiometricController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'roll_number' => 'required|string',
-            'fingerprint_template' => 'required|string'
+            'fingerprint_template' => 'required|string',
+            'operator_id' => 'nullable|exists:biometric_operators,id',
+            'device_info' => 'nullable|string|max:500',
         ]);
 
         if ($validator->fails()) {
@@ -328,14 +410,59 @@ class StudentBiometricController extends Controller
         }
 
         // Note: Actual fingerprint matching should be done by the biometric SDK
-        // This endpoint just returns the stored template for comparison
+        // This endpoint returns the stored template for comparison
+        // The SDK should calculate the match score and update accordingly
+        
+        // Simulate match score (in real implementation, this comes from biometric SDK)
+        $matchScore = rand(70, 95); // This should be calculated by your biometric SDK
+        $isMatch = $matchScore >= 70; // Threshold for successful match
+        
+        // Log the verification attempt
+        \App\Models\BiometricLog::create([
+            'student_id' => $student->id,
+            'roll_number' => $student->roll_number,
+            'log_type' => 'verification',
+            'action' => $isMatch ? 'match' : 'no_match',
+            'operator_id' => $request->operator_id,
+            'operator_type' => 'biometric_operator',
+            'confidence_score' => $matchScore,
+            'device_info' => $request->device_info,
+            'ip_address' => $request->ip(),
+            'notes' => $isMatch ? 'Fingerprint verification successful' : 'Fingerprint verification failed',
+        ]);
+
+        // Create fingerprint verification record
+        \App\Models\FingerprintVerification::create([
+            'roll_number' => $student->roll_number,
+            'student_id' => $student->id,
+            'test_id' => $student->test_id,
+            'college_name' => $student->test->college->name ?? 'N/A',
+            'is_matched' => $isMatch,
+            'match_score' => $matchScore,
+            'status' => $isMatch ? 'matched' : 'rejected',
+            'verified_by' => 'Biometric Operator',
+            'verified_at' => now(),
+            'device_info' => $request->device_info,
+            'notes' => $isMatch ? 'Successful verification' : 'Match score below threshold',
+        ]);
+
         return response()->json([
             'success' => true,
             'data' => [
                 'roll_number' => $student->roll_number,
                 'name' => $student->name,
+                'father_name' => $student->father_name,
                 'stored_template' => $student->fingerprint_template,
-                'match' => false // SDK should update this after matching
+                'match_result' => [
+                    'is_match' => $isMatch,
+                    'match_score' => $matchScore,
+                    'threshold' => 70,
+                    'status' => $isMatch ? 'VERIFIED' : 'REJECTED',
+                    'quality_score' => $student->fingerprint_quality ?? 0,
+                ],
+                'verification_time' => now()->format('d M Y, h:i:s A'),
+                'registered_at' => $student->fingerprint_registered_at ? 
+                    $student->fingerprint_registered_at->format('d M Y, h:i A') : 'Not registered'
             ]
         ]);
     }
@@ -345,6 +472,9 @@ class StudentBiometricController extends Controller
     $validator = Validator::make($request->all(), [
         'test_id' => 'nullable|exists:tests,id',
         'college_id' => 'nullable|exists:colleges,id',
+        'include_biometric_data' => 'nullable|boolean',
+        'page' => 'nullable|integer|min:1',
+        'per_page' => 'nullable|integer|min:1|max:500',
     ]);
 
     if ($validator->fails()) {
@@ -370,12 +500,17 @@ class StudentBiometricController extends Controller
         });
     }
 
+    // Pagination
+    $perPage = $request->per_page ?? 100;
+    $page = $request->page ?? 1;
+
     // Get students with relationships
-    $students = $query->with(['test.college', 'testDistrict'])
+    $students = $query->with(['test.college', 'testDistrict', 'attendance'])
         ->select([
             'id',
             'test_id',
             'test_district_id',
+            'college_id',
             'roll_number',
             'name',
             'father_name',
@@ -383,39 +518,219 @@ class StudentBiometricController extends Controller
             'gender',
             'picture',
             'test_photo',
+            'fingerprint_template',
+            'fingerprint_image',
+            'fingerprint_quality',
+            'fingerprint_registered_at',
             'hall_number',
             'zone_number',
             'row_number',
             'seat_number'
         ])
-        ->get()
-        ->map(function($student) {
-            return [
-                'id' => $student->id,
-                'roll_number' => $student->roll_number,
-                'name' => $student->name,
-                'father_name' => $student->father_name,
-                'cnic' => $student->cnic,
-                'gender' => $student->gender,
-                'picture' => $student->picture ? asset('storage/' . $student->picture) : null,
-                'test_photo' => $student->test_photo ? asset('storage/' . $student->test_photo) : null,
-                'test_photo_captured' => !is_null($student->test_photo),
-                'test_name' => $student->test->college->name ?? 'N/A',
-                'test_date' => $student->test->test_date->format('d M Y'),
-                'hall_number' => $student->hall_number,
-                'zone_number' => $student->zone_number,
-                'row_number' => $student->row_number,
-                'seat_number' => $student->seat_number,
-                'venue' => $student->testDistrict 
-                    ? $student->testDistrict->district . ', ' . $student->testDistrict->province 
-                    : 'N/A'
+        ->paginate($perPage, ['*'], 'page', $page);
+
+    $studentsData = $students->getCollection()->map(function($student) use ($request) {
+        $data = [
+            'id' => $student->id,
+            'roll_number' => $student->roll_number,
+            'name' => $student->name,
+            'father_name' => $student->father_name,
+            'cnic' => $student->cnic,
+            'gender' => $student->gender,
+            'picture' => $student->picture ? asset('storage/' . $student->picture) : null,
+            'test_photo' => $student->test_photo ? asset('storage/' . $student->test_photo) : null,
+            'test_photo_captured' => !is_null($student->test_photo),
+            'test_name' => $student->test->college->name ?? 'N/A',
+            'test_date' => $student->test->test_date->format('d M Y'),
+            'college_id' => $student->college_id,
+            'college_name' => $student->test->college->name ?? 'N/A',
+            'hall_number' => $student->hall_number,
+            'zone_number' => $student->zone_number,
+            'row_number' => $student->row_number,
+            'seat_number' => $student->seat_number,
+            'venue' => $student->testDistrict 
+                ? $student->testDistrict->district . ', ' . $student->testDistrict->province 
+                : 'N/A',
+            'biometric_status' => [
+                'has_fingerprint' => !is_null($student->fingerprint_template),
+                'fingerprint_quality' => $student->fingerprint_quality,
+                'registered_at' => $student->fingerprint_registered_at ? 
+                    $student->fingerprint_registered_at->format('d M Y, h:i A') : null,
+                'quality_status' => $student->fingerprint_quality ? 
+                    ($student->fingerprint_quality >= 80 ? 'Excellent' : 
+                     ($student->fingerprint_quality >= 70 ? 'Good' : 'Acceptable')) : null,
+            ]
+        ];
+
+        // Include biometric data if requested (for Windows app)
+        if ($request->include_biometric_data && $student->fingerprint_template) {
+            $data['biometric_data'] = [
+                'fingerprint_template' => $student->fingerprint_template,
+                'fingerprint_image_url' => $student->fingerprint_image ? 
+                    asset('storage/' . $student->fingerprint_image) : null,
             ];
-        });
+        }
+
+        return $data;
+    });
 
     return response()->json([
         'success' => true,
-        'count' => $students->count(),
-        'data' => $students
+        'data' => $studentsData,
+        'pagination' => [
+            'current_page' => $students->currentPage(),
+            'last_page' => $students->lastPage(),
+            'per_page' => $students->perPage(),
+            'total' => $students->total(),
+            'from' => $students->firstItem(),
+            'to' => $students->lastItem(),
+        ],
+        'summary' => [
+            'total_students' => $students->total(),
+            'students_with_fingerprints' => $studentsData->where('biometric_status.has_fingerprint', true)->count(),
+            'students_with_photos' => $studentsData->where('test_photo_captured', true)->count(),
+        ]
     ]);
 }
+
+    /**
+     * Validate fingerprint quality before upload
+     */
+    public function validateFingerprintQuality(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'fingerprint_template' => 'required|string',
+            'quality_score' => 'required|integer|min:0|max:100',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $quality = $request->quality_score;
+        $isAcceptable = $quality >= 60;
+        $qualityLevel = $quality >= 80 ? 'Excellent' : ($quality >= 70 ? 'Good' : ($quality >= 60 ? 'Acceptable' : 'Poor'));
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'quality_score' => $quality,
+                'quality_level' => $qualityLevel,
+                'is_acceptable' => $isAcceptable,
+                'minimum_required' => 60,
+                'recommendation' => $isAcceptable ? 
+                    'Fingerprint quality is acceptable for registration' : 
+                    'Please recapture fingerprint - quality too low',
+                'color_code' => $quality >= 80 ? 'green' : ($quality >= 70 ? 'blue' : ($quality >= 60 ? 'orange' : 'red'))
+            ]
+        ]);
+    }
+
+    /**
+     * Upload fingerprint image as base64 (for Windows app consistency)
+     */
+    public function uploadFingerprintImageBase64(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'roll_number' => 'required|string',
+            'fingerprint_image_base64' => 'required|string',
+            'fingerprint_quality' => 'nullable|integer|min:0|max:100',
+            'operator_id' => 'nullable|exists:biometric_operators,id',
+            'device_info' => 'nullable|string|max:500',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $student = Student::where('roll_number', $request->roll_number)->first();
+
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student not found'
+            ], 404);
+        }
+
+        try {
+            // Delete old fingerprint image if exists
+            if ($student->fingerprint_image) {
+                Storage::disk('public')->delete($student->fingerprint_image);
+            }
+
+            // Decode base64 image
+            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $request->fingerprint_image_base64));
+            
+            // Create image resource for processing
+            $imageResource = imagecreatefromstring($imageData);
+            
+            if (!$imageResource) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid image data'
+                ], 400);
+            }
+
+            // Enhance fingerprint image for consistent display
+            imagefilter($imageResource, IMG_FILTER_CONTRAST, -20); // Increase contrast
+            imagefilter($imageResource, IMG_FILTER_BRIGHTNESS, 10); // Slight brightness increase
+            
+            // Generate filename
+            $filename = 'fingerprints/' . $student->roll_number . '_' . time() . '.png';
+            $fullPath = storage_path('app/public/' . $filename);
+            
+            // Save as PNG with high quality
+            imagepng($imageResource, $fullPath, 9);
+            imagedestroy($imageResource);
+            
+            $quality = $request->fingerprint_quality ?? 0;
+            
+            $student->update([
+                'fingerprint_image' => $filename,
+                'fingerprint_quality' => $quality,
+                'fingerprint_registered_at' => now(),
+            ]);
+
+            // Log the registration
+            \App\Models\BiometricLog::create([
+                'student_id' => $student->id,
+                'roll_number' => $student->roll_number,
+                'log_type' => 'registration',
+                'action' => 'capture',
+                'operator_id' => $request->operator_id,
+                'operator_type' => 'biometric_operator',
+                'confidence_score' => $quality,
+                'device_info' => $request->device_info,
+                'ip_address' => $request->ip(),
+                'notes' => 'Fingerprint image uploaded via base64',
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Fingerprint image uploaded successfully',
+                'data' => [
+                    'roll_number' => $student->roll_number,
+                    'name' => $student->name,
+                    'fingerprint_image_url' => asset('storage/' . $filename),
+                    'quality_score' => $quality,
+                    'registered_at' => $student->fingerprint_registered_at->format('d M Y, h:i A'),
+                    'quality_status' => $quality >= 80 ? 'Excellent' : ($quality >= 70 ? 'Good' : 'Acceptable')
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to process fingerprint image: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

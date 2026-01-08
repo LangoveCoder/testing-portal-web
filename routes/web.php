@@ -89,9 +89,8 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
     // Protected Routes (require authentication)
     Route::middleware('auth:super_admin')->group(function () {
         Route::post('/logout', [SuperAdminAuthController::class, 'logout'])->name('logout');
-        Route::get('/dashboard', function () {
-            return view('super_admin.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\SuperAdmin\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/notifications/mark-all-read', [\App\Http\Controllers\SuperAdmin\DashboardController::class, 'markAllNotificationsRead'])->name('notifications.mark-all-read');
         
         // College Management
         Route::resource('colleges', \App\Http\Controllers\SuperAdmin\CollegeController::class);
@@ -180,6 +179,12 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
             Route::get('/', [\App\Http\Controllers\SuperAdmin\BiometricStatusController::class, 'index'])->name('index');
             Route::get('/{student}', [\App\Http\Controllers\SuperAdmin\BiometricStatusController::class, 'show'])->name('show');
         });
+
+        // Attendance Management
+        Route::prefix('attendance')->name('attendance.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\SuperAdmin\AttendanceController::class, 'index'])->name('index');
+            Route::get('/export', [\App\Http\Controllers\SuperAdmin\AttendanceController::class, 'export'])->name('export');
+        });
     });
 });
 
@@ -195,23 +200,8 @@ Route::prefix('college')->name('college.')->group(function () {
     // Protected Routes (require authentication)
     Route::middleware('auth:college')->group(function () {
         Route::post('/logout', [CollegeAuthController::class, 'logout'])->name('logout');
-        Route::get('/dashboard', function () {
-            $college = Auth::guard('college')->user();
-            $totalStudents = \App\Models\Student::whereHas('test', function($query) use ($college) {
-                $query->where('college_id', $college->id);
-            })->count();
-            
-            $studentsWithRollNumbers = \App\Models\Student::whereHas('test', function($query) use ($college) {
-                $query->where('college_id', $college->id);
-            })->whereNotNull('roll_number')->count();
-            
-            $availableTests = \App\Models\Test::where('college_id', $college->id)
-                ->where('registration_deadline', '>=', now())
-                ->orderBy('test_date')
-                ->get();
-            
-            return view('college.dashboard', compact('totalStudents', 'studentsWithRollNumbers', 'availableTests'));
-        })->name('dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\College\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/notifications/mark-all-read', [\App\Http\Controllers\College\DashboardController::class, 'markAllNotificationsRead'])->name('notifications.mark-all-read');
         
         // Student Management
         Route::resource('students', \App\Http\Controllers\College\StudentController::class);

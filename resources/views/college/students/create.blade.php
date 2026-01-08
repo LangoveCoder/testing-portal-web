@@ -3,13 +3,13 @@
 @section('title', 'Register New Student')
 
 @section('content')
-<div class="min-h-screen bg-gray-100">
+<div class="min-h-screen bg-gray-100 dark:bg-dark-900">
     <!-- Top Navigation Bar -->
-    <nav class="bg-green-600 text-white shadow-lg">
+    <nav class="bg-green-600 dark:bg-green-700 text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center space-x-4">
-                    <a href="{{ route('college.students.index') }}" class="text-white hover:text-gray-200">
+                    <a href="{{ route('college.students.index') }}" class="text-white hover:text-gray-200 dark:hover:text-gray-300">
                         ← Back to Students
                     </a>
                     <h1 class="text-xl font-bold">Register New Student</h1>
@@ -18,7 +18,7 @@
                     <span>{{ Auth::guard('college')->user()->name }}</span>
                     <form method="POST" action="{{ route('college.logout') }}">
                         @csrf
-                        <button type="submit" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">
+                        <button type="submit" class="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 px-4 py-2 rounded transition-colors">
                             Logout
                         </button>
                     </form>
@@ -29,10 +29,10 @@
 
     <!-- Main Content -->
     <div class="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div class="bg-white shadow-md rounded-lg p-6">
+        <div class="bg-white dark:bg-dark-800 shadow-md rounded-lg p-6 border border-gray-200 dark:border-dark-700">
             
             @if($errors->any())
-                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+                <div class="bg-red-100 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-400 text-red-700 dark:text-red-400 p-4 mb-4">
                     <p class="font-bold">Please fix the following errors:</p>
                     <ul class="list-disc list-inside">
                         @foreach($errors->all() as $error)
@@ -45,17 +45,17 @@
             <form action="{{ route('college.students.store') }}" method="POST" enctype="multipart/form-data" id="studentForm">
                 @csrf
 
-                <h2 class="text-xl font-bold text-gray-800 mb-4 border-b-2 border-gray-200 pb-2">Student Information</h2>
+                <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 border-b-2 border-gray-200 dark:border-dark-600 pb-2">Student Information</h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     
                     <!-- Test Selection -->
                     <div class="md:col-span-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Select Test <span class="text-red-500">*</span>
                         </label>
                         <select name="test_id" id="test_id" required onchange="loadTestDistricts()"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">
+                                class="shadow appearance-none border border-gray-300 dark:border-dark-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-100 bg-white dark:bg-dark-700 leading-tight focus:outline-none focus:border-green-500 dark:focus:border-green-400">
                             <option value="">-- Select Test --</option>
                             @foreach($tests as $test)
                                 <option value="{{ $test->id }}" {{ old('test_id') == $test->id ? 'selected' : '' }}>
@@ -64,80 +64,80 @@
                             @endforeach
                         </select>
                         @if($tests->count() == 0)
-                            <p class="text-red-500 text-xs mt-1">No active tests available for registration.</p>
+                            <p class="text-red-500 dark:text-red-400 text-xs mt-1">No active tests available for registration.</p>
                         @endif
                     </div>
 
                     <!-- Test District Selection -->
                     <div class="md:col-span-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Preferred Test District <span class="text-red-500">*</span>
                         </label>
                         <select name="test_center_id" id="test_center_id" required
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">
+                                class="shadow appearance-none border border-gray-300 dark:border-dark-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-100 bg-white dark:bg-dark-700 leading-tight focus:outline-none focus:border-green-500 dark:focus:border-green-400">
                             <option value="">-- Select test first --</option>
                         </select>
                     </div>
 
                     <!-- Picture Upload -->
                     <div class="md:col-span-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Student Picture <span class="text-red-500">*</span>
                         </label>
                         <input type="file" name="picture" id="picture" required accept="image/jpeg,image/jpg,image/png"
                                onchange="previewImage(event)"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">
-                        <p class="text-xs text-gray-500 mt-1">JPG, JPEG or PNG. Max size: 2MB</p>
+                               class="shadow appearance-none border border-gray-300 dark:border-dark-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-100 bg-white dark:bg-dark-700 leading-tight focus:outline-none focus:border-green-500 dark:focus:border-green-400">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">JPG, JPEG or PNG. Max size: 2MB</p>
                         <div id="imagePreview" class="mt-3 hidden">
-                            <img id="preview" src="" alt="Preview" class="h-32 w-32 object-cover rounded border">
+                            <img id="preview" src="" alt="Preview" class="h-32 w-32 object-cover rounded border border-gray-300 dark:border-dark-600">
                         </div>
                     </div>
 
                     <!-- Student Name -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Student Name <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="name" value="{{ old('name') }}" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">
+                               class="shadow appearance-none border border-gray-300 dark:border-dark-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-100 bg-white dark:bg-dark-700 leading-tight focus:outline-none focus:border-green-500 dark:focus:border-green-400">
                     </div>
 
                     <!-- Student CNIC -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Student CNIC (13 digits) <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="cnic" value="{{ old('cnic') }}" required maxlength="13" pattern="[0-9]{13}"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500"
+                               class="shadow appearance-none border border-gray-300 dark:border-dark-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-100 bg-white dark:bg-dark-700 leading-tight focus:outline-none focus:border-green-500 dark:focus:border-green-400"
                                placeholder="e.g., 4210112345678">
                     </div>
 
                     <!-- Father Name -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Father Name <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="father_name" value="{{ old('father_name') }}" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">
+                               class="shadow appearance-none border border-gray-300 dark:border-dark-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-100 bg-white dark:bg-dark-700 leading-tight focus:outline-none focus:border-green-500 dark:focus:border-green-400">
                     </div>
 
                     <!-- Father CNIC -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Father CNIC (13 digits) <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="father_cnic" value="{{ old('father_cnic') }}" required maxlength="13" pattern="[0-9]{13}"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500"
+                               class="shadow appearance-none border border-gray-300 dark:border-dark-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-100 bg-white dark:bg-dark-700 leading-tight focus:outline-none focus:border-green-500 dark:focus:border-green-400"
                                placeholder="e.g., 4210112345678">
                     </div>
 
                     <!-- Gender -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Gender <span class="text-red-500">*</span>
                         </label>
                         <select name="gender" required
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">
+                                class="shadow appearance-none border border-gray-300 dark:border-dark-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-100 bg-white dark:bg-dark-700 leading-tight focus:outline-none focus:border-green-500 dark:focus:border-green-400">
                             <option value="">Select Gender</option>
                             @if($college->gender_policy == 'Both' || $college->gender_policy == 'Male Only')
                                 <option value="Male" {{ old('gender') == 'Male' ? 'selected' : '' }}>Male</option>
@@ -150,11 +150,11 @@
 
                     <!-- Religion -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Religion <span class="text-red-500">*</span>
                         </label>
                         <select name="religion" required
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">
+                                class="shadow appearance-none border border-gray-300 dark:border-dark-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-100 bg-white dark:bg-dark-700 leading-tight focus:outline-none focus:border-green-500 dark:focus:border-green-400">
                             <option value="">Select Religion</option>
                             <option value="Islam" {{ old('religion') == 'Islam' ? 'selected' : '' }}>Islam</option>
                             <option value="Christianity" {{ old('religion') == 'Christianity' ? 'selected' : '' }}>Christianity</option>
@@ -165,11 +165,11 @@
 
                     <!-- Disability (NEW) -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Disability <span class="text-red-500">*</span>
                         </label>
                         <select name="disability" required
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">
+                                class="shadow appearance-none border border-gray-300 dark:border-dark-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-100 bg-white dark:bg-dark-700 leading-tight focus:outline-none focus:border-green-500 dark:focus:border-green-400">
                             <option value="">Select Option</option>
                             <option value="No" {{ old('disability') == 'No' ? 'selected' : '' }}>No</option>
                             <option value="Yes" {{ old('disability') == 'Yes' ? 'selected' : '' }}>Yes</option>
@@ -178,14 +178,14 @@
 
                     <!-- Date of Birth -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Date of Birth <span class="text-red-500">*</span>
                         </label>
                         <input type="date" name="date_of_birth" value="{{ old('date_of_birth') }}" required
                                max="{{ date('Y-m-d', strtotime('-5 years')) }}"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">
+                               class="shadow appearance-none border border-gray-300 dark:border-dark-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-100 bg-white dark:bg-dark-700 leading-tight focus:outline-none focus:border-green-500 dark:focus:border-green-400">
                         @if($college->min_age || $college->max_age)
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Age requirement: 
                                 @if($college->min_age && $college->max_age)
                                     {{ $college->min_age }} - {{ $college->max_age }} years
@@ -200,11 +200,11 @@
 
                     <!-- Province -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Province <span class="text-red-500">*</span>
                         </label>
                         <select name="province" id="province" required onchange="handleProvinceChange()"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">
+                                class="shadow appearance-none border border-gray-300 dark:border-dark-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-100 bg-white dark:bg-dark-700 leading-tight focus:outline-none focus:border-green-500 dark:focus:border-green-400">
                             <option value="">Select Province</option>
                             <option value="Balochistan" {{ old('province') == 'Balochistan' ? 'selected' : '' }}>Balochistan</option>
                             <option value="Sindh" {{ old('province') == 'Sindh' ? 'selected' : '' }}>Sindh</option>
@@ -218,11 +218,11 @@
 
                     <!-- Division (Only for Balochistan) -->
                     <div id="divisionContainer" style="display: none;">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Division <span class="text-red-500" id="divisionRequired">*</span>
                         </label>
                         <select name="division" id="division" onchange="loadDistricts()"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">
+                                class="shadow appearance-none border border-gray-300 dark:border-dark-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-100 bg-white dark:bg-dark-700 leading-tight focus:outline-none focus:border-green-500 dark:focus:border-green-400">
                             <option value="">Select Division</option>
                             <option value="Quetta Division" {{ old('division') == 'Quetta Division' ? 'selected' : '' }}>Quetta Division</option>
                             <option value="Kalat Division" {{ old('division') == 'Kalat Division' ? 'selected' : '' }}>Kalat Division</option>
@@ -237,36 +237,36 @@
 
                     <!-- District -->
                     <div id="districtContainer">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             District <span class="text-red-500">*</span>
                         </label>
                         <select name="district" id="district" style="display: none;"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">
+                                class="shadow appearance-none border border-gray-300 dark:border-dark-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-100 bg-white dark:bg-dark-700 leading-tight focus:outline-none focus:border-green-500 dark:focus:border-green-400">
                             <option value="">Select Division First</option>
                         </select>
                         <input type="text" name="district_text" id="district_text" value="{{ old('district') }}"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500"
+                               class="shadow appearance-none border border-gray-300 dark:border-dark-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-100 bg-white dark:bg-dark-700 leading-tight focus:outline-none focus:border-green-500 dark:focus:border-green-400"
                                placeholder="Enter District">
                     </div>
 
                     <!-- Address -->
                     <div class="md:col-span-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Address <span class="text-red-500">*</span>
                         </label>
                         <textarea name="address" rows="3" required
-                                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-green-500">{{ old('address') }}</textarea>
+                                  class="shadow appearance-none border border-gray-300 dark:border-dark-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-100 bg-white dark:bg-dark-700 leading-tight focus:outline-none focus:border-green-500 dark:focus:border-green-400">{{ old('address') }}</textarea>
                     </div>
                 </div>
 
                 <!-- Submit Buttons -->
                 <div class="flex items-center justify-end space-x-4 mt-6">
                     <a href="{{ route('college.students.index') }}" 
-                       class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded">
+                       class="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-2 px-6 rounded transition-colors">
                         Cancel
                     </a>
                     <button type="submit" 
-                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded">
+                            class="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white font-bold py-2 px-6 rounded transition-colors">
                         Register Student
                     </button>
                 </div>

@@ -3,7 +3,7 @@
 @section('title', 'Merit Lists - ' . $test->college->name)
 
 @section('content')
-<div class="min-h-screen bg-gray-100">
+<div class="min-h-screen bg-gray-100 dark:bg-dark-900">
     <!-- Header -->
     <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

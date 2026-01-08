@@ -18,7 +18,7 @@ class BiometricOperatorController extends Controller
      */
     public function index()
     {
-        $operators = BiometricOperator::with('creator')
+        $operators = BiometricOperator::with(['creator', 'assignedCollege'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -48,8 +48,8 @@ class BiometricOperatorController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:biometric_operators,email',
             'password' => 'required|string|min:6|confirmed',
-            'assigned_colleges' => 'nullable|array',
-            'assigned_colleges.*' => 'exists:colleges,id',
+            'phone' => 'nullable|string|max:20',
+            'assigned_college_id' => 'nullable|exists:colleges,id',
             'assigned_tests' => 'nullable|array',
             'assigned_tests.*' => 'exists:tests,id',
             'status' => 'required|in:active,inactive',
@@ -59,11 +59,16 @@ class BiometricOperatorController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'assigned_colleges' => $request->assigned_colleges ?? [],
-            'assigned_tests' => $request->assigned_tests ?? [],
+            'phone' => $request->phone,
+            'assigned_college_id' => $request->assigned_college_id,
             'status' => $request->status,
             'created_by' => Auth::guard('super_admin')->id(),
         ]);
+
+        // Sync tests if provided
+        if ($request->assigned_tests) {
+            $operator->tests()->sync($request->assigned_tests);
+        }
 
         // Log action
         AuditLog::logAction(
@@ -75,7 +80,7 @@ class BiometricOperatorController extends Controller
             'Created biometric operator: ' . $operator->name,
             null,
             [
-                'assigned_colleges' => count($request->assigned_colleges ?? []),
+                'assigned_college' => $request->assigned_college_id,
                 'assigned_tests' => count($request->assigned_tests ?? [])
             ]
         );
@@ -95,6 +100,9 @@ class BiometricOperatorController extends Controller
             ->orderBy('test_date', 'desc')
             ->get();
 
+        // Load the operator's assigned tests
+        $biometricOperator->load('tests');
+
         return view('super_admin.biometric_operators.edit', compact('biometricOperator', 'colleges', 'tests'));
     }
 
@@ -107,8 +115,8 @@ class BiometricOperatorController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:biometric_operators,email,' . $biometricOperator->id,
             'password' => 'nullable|string|min:6|confirmed',
-            'assigned_colleges' => 'nullable|array',
-            'assigned_colleges.*' => 'exists:colleges,id',
+            'phone' => 'nullable|string|max:20',
+            'assigned_college_id' => 'nullable|exists:colleges,id',
             'assigned_tests' => 'nullable|array',
             'assigned_tests.*' => 'exists:tests,id',
             'status' => 'required|in:active,inactive',
@@ -117,8 +125,8 @@ class BiometricOperatorController extends Controller
         $data = [
             'name' => $request->name,
             'email' => $request->email,
-            'assigned_colleges' => $request->assigned_colleges ?? [],
-            'assigned_tests' => $request->assigned_tests ?? [],
+            'phone' => $request->phone,
+            'assigned_college_id' => $request->assigned_college_id,
             'status' => $request->status,
         ];
 
@@ -127,6 +135,11 @@ class BiometricOperatorController extends Controller
         }
 
         $biometricOperator->update($data);
+
+        // Sync tests
+        if ($request->has('assigned_tests')) {
+            $biometricOperator->tests()->sync($request->assigned_tests ?? []);
+        }
 
         // Log action
         AuditLog::logAction(

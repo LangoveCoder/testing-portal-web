@@ -3,13 +3,13 @@
 @section('title', 'View Student Details')
 
 @section('content')
-<div class="min-h-screen bg-gray-100">
+<div class="min-h-screen bg-gray-100 dark:bg-dark-900">
     <!-- Top Navigation Bar -->
-    <nav class="bg-green-600 text-white shadow-lg">
+    <nav class="bg-green-600 dark:bg-green-700 text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center space-x-4">
-                    <a href="{{ route('college.students.index') }}" class="text-white hover:text-gray-200">
+                    <a href="{{ route('college.students.index') }}" class="text-white hover:text-gray-200 dark:hover:text-gray-300">
                         ← Back to Students
                     </a>
                     <h1 class="text-xl font-bold">Student Details</h1>
@@ -18,7 +18,7 @@
                     <span>{{ Auth::guard('college')->user()->name }}</span>
                     <form method="POST" action="{{ route('college.logout') }}">
                         @csrf
-                        <button type="submit" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">
+                        <button type="submit" class="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 px-4 py-2 rounded transition-colors">
                             Logout
                         </button>
                     </form>
@@ -29,10 +29,10 @@
 
     <!-- Main Content -->
     <div class="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="bg-white dark:bg-dark-800 shadow-md rounded-lg overflow-hidden border border-gray-200 dark:border-dark-700">
             
             <!-- Student Picture and Basic Info -->
-            <div class="bg-gradient-to-r from-green-500 to-teal-600 p-6">
+            <div class="bg-gradient-to-r from-green-500 to-teal-600 dark:from-green-600 dark:to-teal-700 p-6">
                 <div class="flex items-center space-x-6">
                     <div class="flex-shrink-0">
                         @if($student->picture)
@@ -40,7 +40,7 @@
                                  alt="{{ $student->name }}" 
                                  class="h-32 w-32 rounded-full object-cover border-4 border-white shadow-lg">
                         @else
-                            <div class="h-32 w-32 rounded-full bg-white flex items-center justify-center text-green-600 text-4xl font-bold border-4 border-white shadow-lg">
+                            <div class="h-32 w-32 rounded-full bg-white dark:bg-gray-100 flex items-center justify-center text-green-600 dark:text-green-700 text-4xl font-bold border-4 border-white shadow-lg">
                                 {{ substr($student->name, 0, 1) }}
                             </div>
                         @endif
@@ -49,13 +49,13 @@
                         <h2 class="text-3xl font-bold">{{ $student->name }}</h2>
                         <p class="text-lg mt-1">S/O {{ $student->father_name }}</p>
                         <div class="mt-3 flex items-center space-x-4">
-                            <span class="px-3 py-1 bg-white text-green-700 rounded-full text-sm font-semibold">
+                            <span class="px-3 py-1 bg-white dark:bg-gray-100 text-green-700 dark:text-green-800 rounded-full text-sm font-semibold">
                                 {{ $student->gender }}
                             </span>
-                            <span class="px-3 py-1 bg-white text-green-700 rounded-full text-sm font-semibold">
+                            <span class="px-3 py-1 bg-white dark:bg-gray-100 text-green-700 dark:text-green-800 rounded-full text-sm font-semibold">
                                 {{ $student->religion }}
                             </span>
-                            <span class="px-3 py-1 bg-white text-green-700 rounded-full text-sm font-semibold">
+                            <span class="px-3 py-1 bg-white dark:bg-gray-100 text-green-700 dark:text-green-800 rounded-full text-sm font-semibold">
                                 Registration ID: {{ $student->registration_id }}
                             </span>
                         </div>
@@ -64,88 +64,88 @@
             </div>
 
             <!-- Personal Information -->
-            <div class="p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Personal Information</h3>
+            <div class="p-6 border-b border-gray-200 dark:border-dark-600">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Personal Information</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-bold text-gray-600">Student CNIC</label>
-                        <p class="text-gray-900 font-mono">{{ $student->cnic }}</p>
+                        <label class="block text-sm font-bold text-gray-600 dark:text-gray-400">Student CNIC</label>
+                        <p class="text-gray-900 dark:text-gray-100 font-mono">{{ $student->cnic }}</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-600">Father CNIC</label>
-                        <p class="text-gray-900 font-mono">{{ $student->father_cnic }}</p>
+                        <label class="block text-sm font-bold text-gray-600 dark:text-gray-400">Father CNIC</label>
+                        <p class="text-gray-900 dark:text-gray-100 font-mono">{{ $student->father_cnic }}</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-600">Date of Birth</label>
-                        <p class="text-gray-900">{{ $student->date_of_birth->format('d M Y') }}</p>
+                        <label class="block text-sm font-bold text-gray-600 dark:text-gray-400">Date of Birth</label>
+                        <p class="text-gray-900 dark:text-gray-100">{{ $student->date_of_birth->format('d M Y') }}</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-600">Age</label>
-                        <p class="text-gray-900">{{ \Carbon\Carbon::parse($student->date_of_birth)->age }} years</p>
+                        <label class="block text-sm font-bold text-gray-600 dark:text-gray-400">Age</label>
+                        <p class="text-gray-900 dark:text-gray-100">{{ \Carbon\Carbon::parse($student->date_of_birth)->age }} years</p>
                     </div>
                 </div>
             </div>
 
             <!-- Address Information -->
-            <div class="p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Address Information</h3>
+            <div class="p-6 border-b border-gray-200 dark:border-dark-600">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Address Information</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-bold text-gray-600">Province</label>
-                        <p class="text-gray-900">{{ $student->province }}</p>
+                        <label class="block text-sm font-bold text-gray-600 dark:text-gray-400">Province</label>
+                        <p class="text-gray-900 dark:text-gray-100">{{ $student->province }}</p>
                     </div>
                     @if($student->division)
                     <div>
-                        <label class="block text-sm font-bold text-gray-600">Division</label>
-                        <p class="text-gray-900">{{ $student->division }}</p>
+                        <label class="block text-sm font-bold text-gray-600 dark:text-gray-400">Division</label>
+                        <p class="text-gray-900 dark:text-gray-100">{{ $student->division }}</p>
                     </div>
                     @endif
                     <div>
-                        <label class="block text-sm font-bold text-gray-600">District</label>
-                        <p class="text-gray-900">{{ $student->district }}</p>
+                        <label class="block text-sm font-bold text-gray-600 dark:text-gray-400">District</label>
+                        <p class="text-gray-900 dark:text-gray-100">{{ $student->district }}</p>
                     </div>
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-bold text-gray-600">Complete Address</label>
-                        <p class="text-gray-900">{{ $student->address }}</p>
+                        <label class="block text-sm font-bold text-gray-600 dark:text-gray-400">Complete Address</label>
+                        <p class="text-gray-900 dark:text-gray-100">{{ $student->address }}</p>
                     </div>
                 </div>
             </div>
 
             <!-- Test Information -->
-            <div class="p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Test Information</h3>
+            <div class="p-6 border-b border-gray-200 dark:border-dark-600">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Test Information</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-bold text-gray-600">Test Date</label>
-                        <p class="text-gray-900">{{ $student->test->test_date->format('d M Y') }}</p>
+                        <label class="block text-sm font-bold text-gray-600 dark:text-gray-400">Test Date</label>
+                        <p class="text-gray-900 dark:text-gray-100">{{ $student->test->test_date->format('d M Y') }}</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-600">Test Time</label>
-                        <p class="text-gray-900">{{ date('h:i A', strtotime($student->test->test_time)) }}</p>
+                        <label class="block text-sm font-bold text-gray-600 dark:text-gray-400">Test Time</label>
+                        <p class="text-gray-900 dark:text-gray-100">{{ date('h:i A', strtotime($student->test->test_time)) }}</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-600">Test Mode</label>
-                        <p class="text-gray-900">{{ ucfirst(str_replace('_', ' ', $student->test->test_mode)) }}</p>
+                        <label class="block text-sm font-bold text-gray-600 dark:text-gray-400">Test Mode</label>
+                        <p class="text-gray-900 dark:text-gray-100">{{ ucfirst(str_replace('_', ' ', $student->test->test_mode)) }}</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-600">Total Marks</label>
-                        <p class="text-gray-900">{{ $student->test->total_marks }}</p>
+                        <label class="block text-sm font-bold text-gray-600 dark:text-gray-400">Total Marks</label>
+                        <p class="text-gray-900 dark:text-gray-100">{{ $student->test->total_marks }}</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-600">Test District</label>
-                        <p class="text-gray-900">{{ $student->testDistrict->district }}, {{ $student->testDistrict->province }}</p>
+                        <label class="block text-sm font-bold text-gray-600 dark:text-gray-400">Test District</label>
+                        <p class="text-gray-900 dark:text-gray-100">{{ $student->testDistrict->district }}, {{ $student->testDistrict->province }}</p>
                     </div>
                 </div>
             </div>
 
             <!-- Roll Number & Seating Information -->
             @if($student->roll_number)
-            <div class="p-6 bg-yellow-50">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Roll Number & Seating Assignment</h3>
+            <div class="p-6 bg-yellow-50 dark:bg-yellow-900/20">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Roll Number & Seating Assignment</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-bold text-gray-600">Roll Number</label>
-                        <p class="text-3xl font-mono font-bold text-green-600">{{ $student->roll_number }}</p>
+                        <label class="block text-sm font-bold text-gray-600 dark:text-gray-400">Roll Number</label>
+                        <p class="text-3xl font-mono font-bold text-green-600 dark:text-green-400">{{ $student->roll_number }}</p>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-600">Question Book Color</label>

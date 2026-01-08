@@ -3,9 +3,9 @@
 @section('title', 'Create New Test')
 
 @section('content')
-<div class="min-h-screen bg-gray-100">
+<div class="min-h-screen bg-gray-100 dark:bg-dark-900">
     <!-- Top Navigation Bar -->
-    <nav class="bg-blue-600 text-white shadow-lg">
+    <nav class="bg-blue-600 dark:bg-blue-700 text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center space-x-4">
@@ -29,10 +29,10 @@
 
     <!-- Main Content -->
     <div class="max-w-6xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div class="bg-white shadow-md rounded-lg p-6">
+        <div class="bg-white dark:bg-dark-800 shadow-md rounded-lg p-6 border border-gray-200 dark:border-dark-700">
             
             @if($errors->any())
-                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+                <div class="bg-red-100 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-400 text-red-700 dark:text-red-400 p-4 mb-4">
                     <p class="font-bold">Please fix the following errors:</p>
                     <ul class="list-disc list-inside">
                         @foreach($errors->all() as $error)
@@ -45,7 +45,7 @@
             <form action="{{ route('super-admin.tests.store') }}" method="POST" id="testForm">
                 @csrf
 
-                <h2 class="text-xl font-bold text-gray-800 mb-4 border-b-2 border-gray-200 pb-2">Test Information</h2>
+                <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 border-b-2 border-gray-200 dark:border-dark-600 pb-2">Test Information</h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     

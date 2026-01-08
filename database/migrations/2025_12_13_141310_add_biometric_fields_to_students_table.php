@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::table('students', function (Blueprint $table) {
             $table->text('fingerprint_template')->nullable()->after('picture');
             $table->string('fingerprint_image')->nullable()->after('fingerprint_template');
-            $table->string('test_photo')->nullable()->after('fingerprint_image');
         });
     }
 
@@ -24,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('students', function (Blueprint $table) {
-            $table->dropColumn(['fingerprint_template', 'fingerprint_image', 'test_photo']);
+            $table->dropColumn(['fingerprint_template', 'fingerprint_image']);
         });
     }
 };

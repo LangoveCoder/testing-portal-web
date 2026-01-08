@@ -3,9 +3,9 @@
 @section('title', 'Student Biometric Details')
 
 @section('content')
-<div class="min-h-screen bg-gray-100">
+<div class="min-h-screen bg-gray-100 dark:bg-dark-900">
     <!-- Top Navigation -->
-    <nav class="bg-blue-600 text-white shadow-lg">
+    <nav class="bg-blue-600 dark:bg-blue-700 text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center space-x-4">
@@ -46,7 +46,12 @@
                 </div>
                 <div>
                     <p class="text-gray-600">Test</p>
-                    <p class="font-semibold">{{ $student->test->name ?? 'N/A' }}</p>
+                    <p class="font-semibold">
+                        {{ $student->test->college->name ?? 'N/A' }}
+                        @if($student->test->test_date)
+                            <br><span class="text-sm text-gray-500">{{ $student->test->test_date->format('d M Y') }}</span>
+                        @endif
+                    </p>
                 </div>
                 <div>
                     <p class="text-gray-600">Hall - Zone - Row - Seat</p>

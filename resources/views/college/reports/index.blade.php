@@ -3,9 +3,9 @@
 @section('title', 'Generate Reports')
 
 @section('content')
-<div class="min-h-screen bg-gray-100">
+<div class="min-h-screen bg-gray-100 dark:bg-dark-900">
     <!-- Top Navigation Bar -->
-    <nav class="bg-orange-600 text-white shadow-lg">
+    <nav class="bg-orange-600 dark:bg-orange-700 text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center space-x-4">

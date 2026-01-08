@@ -70,4 +70,15 @@ class Student extends Model
     {
         return $this->belongsTo(College::class);
     }
+
+    // Attendance relationship
+    public function attendance()
+    {
+        return $this->hasMany(StudentAttendance::class);
+    }
+
+    public function attendanceForTest($testId)
+    {
+        return $this->hasOne(StudentAttendance::class)->where('test_id', $testId);
+    }
 }

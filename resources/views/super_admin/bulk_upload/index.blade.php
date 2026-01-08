@@ -3,9 +3,9 @@
 @section('title', 'Bulk Student Upload')
 
 @section('content')
-<div class="min-h-screen bg-gray-100">
+<div class="min-h-screen bg-gray-100 dark:bg-dark-900">
     <!-- Top Navigation Bar -->
-    <nav class="bg-blue-600 text-white shadow-lg">
+    <nav class="bg-blue-600 dark:bg-blue-700 text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center space-x-4">
@@ -83,14 +83,14 @@
                 </div>
 
                 <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                         Select Test <span class="text-red-500">*</span>
                     </label>
                     <select name="test_id" 
                             id="test-select"
                             required
                             disabled
-                            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100">
+                            class="w-full border border-gray-300 dark:border-dark-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-gray-100 dark:bg-dark-700 text-gray-900 dark:text-gray-100">
                         <option value="">-- Select college first --</option>
                     </select>
                 </div>
@@ -130,14 +130,14 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                         Select Test <span class="text-red-500">*</span>
                     </label>
                     <select name="test_id" 
                             id="upload-test-select"
                             required
                             disabled
-                            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100">
+                            class="w-full border border-gray-300 dark:border-dark-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-gray-100 dark:bg-dark-700 text-gray-900 dark:text-gray-100">
                         <option value="">-- Select college first --</option>
                     </select>
                 </div>

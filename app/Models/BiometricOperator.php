@@ -17,6 +17,7 @@ class BiometricOperator extends Authenticatable
         'phone',
         'status',
         'assigned_college_id',
+        'created_by',
     ];
 
     protected $hidden = [
@@ -30,6 +31,11 @@ class BiometricOperator extends Authenticatable
     ];
 
     // Relationships
+    public function creator()
+    {
+        return $this->belongsTo(SuperAdmin::class, 'created_by');
+    }
+
     public function assignedCollege()
     {
         return $this->belongsTo(College::class, 'assigned_college_id');

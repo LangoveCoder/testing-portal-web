@@ -3,9 +3,9 @@
 @section('title', 'Biometric Operators')
 
 @section('content')
-<div class="min-h-screen bg-gray-100">
+<div class="min-h-screen bg-gray-100 dark:bg-dark-900">
     <!-- Top Navigation Bar -->
-    <nav class="bg-blue-600 text-white shadow-lg">
+    <nav class="bg-blue-600 dark:bg-blue-700 text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center space-x-4">
@@ -107,12 +107,12 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="px-2 py-1 text-xs font-semibold rounded bg-blue-100 text-blue-800">
-                                            {{ count($operator->assigned_colleges ?? []) }} Colleges
+                                            {{ $operator->assignedCollege ? $operator->assignedCollege->name : 'No College' }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="px-2 py-1 text-xs font-semibold rounded bg-green-100 text-green-800">
-                                            {{ count($operator->assigned_tests ?? []) }} Tests
+                                            {{ $operator->tests->count() }} Tests
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">

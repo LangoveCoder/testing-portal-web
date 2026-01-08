@@ -68,7 +68,7 @@ class FingerprintVerificationController extends Controller
                     'gender' => $student->gender,
                     'picture' => $student->picture ? asset('storage/' . $student->picture) : null,
                     'test_photo' => $testPhoto ? (str_starts_with($testPhoto, 'data:') ? $testPhoto : asset('storage/' . $testPhoto)) : null,
-                    'test_name' => $student->test->name ?? 'N/A',
+                    'test_name' => $student->test->college->name ?? 'N/A',
                     'venue' => $student->venue ?? 'N/A',
                     'hall' => $student->hall ?? 'N/A',
                     'zone' => $student->zone ?? 'N/A',

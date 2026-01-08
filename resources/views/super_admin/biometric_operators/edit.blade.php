@@ -3,9 +3,9 @@
 @section('title', 'Edit Biometric Operator')
 
 @section('content')
-<div class="min-h-screen bg-gray-100">
+<div class="min-h-screen bg-gray-100 dark:bg-dark-900">
     <!-- Top Navigation Bar -->
-    <nav class="bg-blue-600 text-white shadow-lg">
+    <nav class="bg-blue-600 dark:bg-blue-700 text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center space-x-4">
@@ -98,29 +98,33 @@
                     </div>
                 </div>
 
-                <!-- Assign Colleges -->
+                <!-- Assign College -->
                 <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Assign Colleges</h3>
-                    <p class="text-sm text-gray-600 mb-3">Select colleges this operator can access</p>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Assign College</h3>
+                    <p class="text-sm text-gray-600 mb-3">Select the college this operator will work with</p>
                     
-                    <div class="border border-gray-300 rounded-md p-4 max-h-60 overflow-y-auto">
-                        @if($colleges->isEmpty())
-                            <p class="text-sm text-gray-500">No active colleges available</p>
-                        @else
-                            @foreach($colleges as $college)
-                            <div class="flex items-center mb-2">
-                                <input type="checkbox" name="assigned_colleges[]" value="{{ $college->id }}" 
-                                       id="college_{{ $college->id }}"
-                                       {{ in_array($college->id, old('assigned_colleges', $biometricOperator->assigned_colleges ?? [])) ? 'checked' : '' }}
-                                       class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
-                                <label for="college_{{ $college->id }}" class="ml-2 text-sm text-gray-700">
-                                    {{ $college->name }} ({{ $college->district }}, {{ $college->province }})
-                                </label>
-                            </div>
-                            @endforeach
-                        @endif
-                    </div>
-                    @error('assigned_colleges')
+                    <select name="assigned_college_id" id="assigned_college_id" 
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500">
+                        <option value="">Select a college...</option>
+                        @foreach($colleges as $college)
+                            <option value="{{ $college->id }}" 
+                                {{ old('assigned_college_id', $biometricOperator->assigned_college_id) == $college->id ? 'selected' : '' }}>
+                                {{ $college->name }} ({{ $college->district }}, {{ $college->province }})
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('assigned_college_id')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Phone Number -->
+                <div class="mb-6">
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                    <input type="text" name="phone" id="phone" value="{{ old('phone', $biometricOperator->phone) }}" 
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                           placeholder="Enter phone number">
+                    @error('phone')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -138,7 +142,7 @@
                             <div class="flex items-center mb-2">
                                 <input type="checkbox" name="assigned_tests[]" value="{{ $test->id }}" 
                                        id="test_{{ $test->id }}"
-                                       {{ in_array($test->id, old('assigned_tests', $biometricOperator->assigned_tests ?? [])) ? 'checked' : '' }}
+                                       {{ in_array($test->id, old('assigned_tests', $biometricOperator->tests->pluck('id')->toArray())) ? 'checked' : '' }}
                                        class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
                                 <label for="test_{{ $test->id }}" class="ml-2 text-sm text-gray-700">
                                     {{ $test->test_name }} - {{ $test->test_date->format('d M Y') }}

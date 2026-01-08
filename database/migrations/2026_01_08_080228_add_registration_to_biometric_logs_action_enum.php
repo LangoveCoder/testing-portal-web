@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('biometric_logs_action_enum', function (Blueprint $table) {
-            //
-        });
+        // This migration was created to add 'registration' to biometric_logs action enum
+        // but the action column was already changed to VARCHAR in previous migration
+        // So this migration is now redundant and does nothing
     }
 
     /**
@@ -21,8 +21,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('biometric_logs_action_enum', function (Blueprint $table) {
-            //
-        });
+        // Nothing to rollback
     }
 };
