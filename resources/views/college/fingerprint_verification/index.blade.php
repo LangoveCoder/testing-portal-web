@@ -288,12 +288,11 @@
         messageDiv.innerHTML = '<span class="text-blue-600 font-semibold">🔍 Loading student data...</span>';
 
         try {
-            // TODO: Replace with actual API endpoint
-            const response = await fetch('{{ route("college.fingerprint-verification.load-student") }}', {
+            // Use API endpoint (no CSRF needed)
+            const response = await fetch('/api/college/fingerprint-verification/load-student', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ roll_number: searchTerm })
             });
@@ -464,11 +463,11 @@
     // Log Verification
     async function logVerification(result) {
         try {
-            await fetch('{{ route("college.fingerprint-verification.log") }}', {
+            // Use API endpoint (no CSRF needed)
+            await fetch('/api/college/fingerprint-verification/log', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     student_id: currentStudent.id,

@@ -27,34 +27,30 @@ class RegistrationController extends Controller
      */
     public function searchStudent(Request $request)
     {
-        $request->validate([
-            'search_term' => 'required|string',
-        ]);
-
-        $operator = Auth::guard('biometric_operator')->user();
+        $searchTerm = $request->input('search_term');
         
+        if (!$searchTerm) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Search term is required'
+            ], 400);
+        }
+
         // Search by roll number or CNIC
-        $student = Student::where(function($query) use ($request) {
-                $query->where('roll_number', $request->search_term)
-                      ->orWhere('cnic', $request->search_term);
-            })
-            ->whereIn('test_id', $operator->assigned_tests ?? [])
-            ->with(['test', 'testDistrict'])
+        $student = Student::where('roll_number', $searchTerm)
+            ->orWhere('cnic', $searchTerm)
+            ->with(['test'])
             ->first();
 
         if (!$student) {
             return response()->json([
                 'success' => false,
-                'message' => 'Student not found or you do not have access to this student.'
+                'message' => 'Student not found with this roll number or CNIC'
             ], 404);
         }
 
-        // Get registration status
-        $registrationLog = BiometricLog::where('student_id', $student->id)
-            ->where('log_type', 'registration')
-            ->where('action', 'capture')
-            ->latest()
-            ->first();
+        // Check if fingerprint already registered
+        $fingerprintRegistered = !empty($student->fingerprint_template);
 
         return response()->json([
             'success' => true,
@@ -66,16 +62,18 @@ class RegistrationController extends Controller
                 'cnic' => $student->cnic,
                 'gender' => $student->gender,
                 'picture' => $student->picture ? asset('storage/' . $student->picture) : null,
-                'fingerprint_registered' => !is_null($student->fingerprint_template),
+                'test_photo' => $student->test_photo ? asset('storage/' . $student->test_photo) : null,
+                'test_id' => $student->test_id,
+                'test_name' => $student->test->name ?? 'N/A',
+                'venue' => $student->test->venue ?? 'N/A',
+                'hall' => $student->hall_number ?? 'N/A',
+                'zone' => $student->zone_number ?? 'N/A',
+                'row' => $student->row_number ?? 'N/A',
+                'seat' => $student->seat_number ?? 'N/A',
+                'fingerprint_template' => $student->fingerprint_template,
                 'fingerprint_image' => $student->fingerprint_image ? asset('storage/' . $student->fingerprint_image) : null,
-                'test_name' => $student->test->test_name,
-                'test_date' => $student->test->test_date->format('d M Y'),
-                'venue' => $student->testDistrict->district . ', ' . $student->testDistrict->province,
-                'hall' => $student->hall_number,
-                'zone' => $student->zone_number,
-                'row' => $student->row_number,
-                'seat' => $student->seat_number,
-                'last_registration' => $registrationLog ? $registrationLog->created_at->format('d M Y, h:i A') : null,
+                'fingerprint_registered' => $fingerprintRegistered,
+                'last_registration' => $student->fingerprint_registered_at ? $student->fingerprint_registered_at->format('d M Y, h:i A') : null
             ]
         ]);
     }
@@ -88,66 +86,102 @@ class RegistrationController extends Controller
         $request->validate([
             'student_id' => 'required|exists:students,id',
             'fingerprint_template' => 'required|string',
-            'fingerprint_image' => 'nullable|string', // Base64 image
+            'fingerprint_image' => 'required|string', // Base64 image
         ]);
 
-        $operator = Auth::guard('biometric_operator')->user();
-        $student = Student::findOrFail($request->student_id);
+        $student = Student::find($request->student_id);
 
-        // Verify operator has access to this student
-        if (!in_array($student->test_id, $operator->assigned_tests ?? [])) {
+        if (!$student) {
             return response()->json([
                 'success' => false,
-                'message' => 'You do not have access to register this student.'
-            ], 403);
+                'message' => 'Student not found'
+            ], 404);
         }
 
         try {
             // Save fingerprint template
             $student->fingerprint_template = $request->fingerprint_template;
 
-            // Save fingerprint image if provided
+            // Save fingerprint image (base64)
             if ($request->filled('fingerprint_image')) {
-                // Decode base64 image
-                $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $request->fingerprint_image));
+                // Check if image is already base64 encoded with data:image prefix
+                $imageData = $request->fingerprint_image;
+                
+                if (strpos($imageData, 'data:image') === 0) {
+                    // Extract base64 part
+                    $imageData = explode(',', $imageData)[1];
+                }
+                
+                // Decode base64
+                $decodedImage = base64_decode($imageData);
                 
                 // Delete old fingerprint image if exists
-                if ($student->fingerprint_image) {
+                if ($student->fingerprint_image && Storage::disk('public')->exists($student->fingerprint_image)) {
                     Storage::disk('public')->delete($student->fingerprint_image);
                 }
                 
                 // Generate unique filename
                 $filename = 'fingerprints/' . $student->roll_number . '_' . time() . '.png';
                 
-                // Store new fingerprint image
-                Storage::disk('public')->put($filename, $imageData);
+                // Process image: invert colors + adjust brightness/contrast
+                try {
+                    // Try to load image (handle both PNG and BMP formats)
+                    $image = @imagecreatefromstring($decodedImage);
+                    
+                    if ($image !== false) {
+                        // Invert colors (white fingerprint on black → black on white)
+                        imagefilter($image, IMG_FILTER_NEGATE);
+                        
+                        // Increase brightness to make it visible
+                        imagefilter($image, IMG_FILTER_BRIGHTNESS, 80);
+                        
+                        // Increase contrast for clarity
+                        imagefilter($image, IMG_FILTER_CONTRAST, -30);
+                        
+                        ob_start();
+                        imagepng($image);
+                        $processedImage = ob_get_clean();
+                        imagedestroy($image);
+                        
+                        Storage::disk('public')->put($filename, $processedImage);
+                    } else {
+                        // Fallback: store original if processing fails
+                        Storage::disk('public')->put($filename, $decodedImage);
+                    }
+                } catch (\Exception $e) {
+                    // Fallback: store original if processing fails
+                    Storage::disk('public')->put($filename, $decodedImage);
+                }
                 
                 $student->fingerprint_image = $filename;
             }
 
+            $student->fingerprint_registered_at = now();
             $student->save();
+
+            // Get authenticated operator if exists
+            $operator = Auth::guard('biometric_operator')->user();
 
             // Log the registration
             BiometricLog::create([
                 'student_id' => $student->id,
                 'roll_number' => $student->roll_number,
-                'log_type' => 'registration',
-                'action' => 'capture',
-                'operator_id' => $operator->id,
-                'operator_type' => 'biometric_operator',
+                'action' => 'registration',
+                'match_result' => null,
                 'confidence_score' => null,
-                'device_info' => $request->header('User-Agent'),
+                'performed_by' => $operator ? $operator->name : 'System',
+                'performed_by_type' => $operator ? 'biometric_operator' : 'web',
+                'performed_at' => now(),
                 'ip_address' => $request->ip(),
-                'notes' => 'Fingerprint registered successfully',
+                'user_agent' => $request->header('User-Agent')
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Fingerprint registered successfully!',
+                'message' => 'Fingerprint saved successfully',
                 'data' => [
-                    'roll_number' => $student->roll_number,
                     'name' => $student->name,
-                    'registered_at' => now()->format('d M Y, h:i A'),
+                    'roll_number' => $student->roll_number
                 ]
             ]);
 
@@ -166,11 +200,11 @@ class RegistrationController extends Controller
     {
         $operator = Auth::guard('biometric_operator')->user();
         
-        $logs = BiometricLog::where('operator_id', $operator->id)
-            ->where('operator_type', 'biometric_operator')
-            ->where('log_type', 'registration')
+        $logs = BiometricLog::where('performed_by', $operator->name)
+            ->where('performed_by_type', 'biometric_operator')
+            ->where('action', 'registration')
             ->with('student')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('performed_at', 'desc')
             ->paginate(50);
 
         return view('biometric_operator.registration.history', compact('logs'));

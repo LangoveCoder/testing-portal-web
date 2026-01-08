@@ -10,53 +10,64 @@ class Student extends Model
     use HasFactory;
 
     protected $fillable = [
-    'test_id',
-    'test_district_id',
-    'picture',
-    'fingerprint_template',      // ADD THIS
-    'fingerprint_image',          // ADD THIS
-    'test_photo',
-    'name',
-    'cnic',
-    'father_name',
-    'father_cnic',
-    'gender',
-    'religion',
-    'disability',
-    'date_of_birth',
-    'province',
-    'division',
-    'district',
-    'address',
-    'roll_number',
-    'book_color',
-    'hall_number',
-    'zone_number',
-    'row_number',
-    'seat_number',
-    'registration_id',
-];
+        'test_id',
+        'test_district_id',
+        'picture',
+        'fingerprint_template',
+        'fingerprint_image',
+        'fingerprint_quality',        // ADD THIS
+        'fingerprint_registered_at',  // ADD THIS
+        'test_photo',
+        'name',
+        'cnic',
+        'father_name',
+        'father_cnic',
+        'gender',
+        'religion',
+        'disability',
+        'date_of_birth',
+        'province',
+        'division',
+        'district',
+        'address',
+        'roll_number',
+        'book_color',
+        'hall_number',
+        'zone_number',
+        'row_number',
+        'seat_number',
+        'registration_id',
+        'college_id',  // ADD THIS if you have it
+    ];
+
     protected $casts = [
         'date_of_birth' => 'date',
+        'fingerprint_registered_at' => 'datetime',  // ADD THIS
         'hall_number' => 'integer',
         'zone_number' => 'integer',
         'row_number' => 'integer',
         'seat_number' => 'integer',
     ];
 
-   // Relationships
-public function test()
-{
-    return $this->belongsTo(Test::class);
-}
+    // Relationships
+    public function test()
+    {
+        return $this->belongsTo(Test::class);
+    }
 
-public function testDistrict()
-{
-    return $this->belongsTo(TestDistrict::class);
-}
+    public function testDistrict()
+    {
+        return $this->belongsTo(TestDistrict::class);
+    }
 
-public function result()
-{
-    return $this->hasOne(Result::class);
-}
+    public function result()
+    {
+        return $this->hasOne(Result::class);
+    }
+
+    // ADD THIS RELATIONSHIP
+    public function college()
+    {
+        return $this->belongsTo(College::class);
+    }
 }

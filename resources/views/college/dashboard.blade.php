@@ -82,6 +82,22 @@
                     </div>
                 </a>
 
+                <!-- Biometric Status -->
+                <a href="{{ route('college.biometric-status.index') }}" class="block">
+                    <div class="bg-gradient-to-br from-pink-400 to-pink-600 rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:scale-105 transition duration-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-pink-100 text-sm font-semibold uppercase">Monitor</p>
+                                <p class="text-white text-3xl font-bold mt-2">Biometric Status</p>
+                            </div>
+                            <div class="text-white text-5xl">📊</div>
+                        </div>
+                        <div class="mt-4 text-pink-100 text-sm">
+                            Track fingerprint & photo capture status
+                        </div>
+                    </div>
+                </a>
+
                 <!-- Bulk Upload Template -->
                 <a href="javascript:void(0)" onclick="document.getElementById('bulkTemplateForm').style.display='block'" class="block">
                     <div class="bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:scale-105 transition duration-200">

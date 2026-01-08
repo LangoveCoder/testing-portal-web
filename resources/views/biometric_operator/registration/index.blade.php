@@ -336,11 +336,11 @@
         messageDiv.innerHTML = '<span class="text-blue-600 font-semibold">🔍 Searching...</span>';
 
         try {
-            const response = await fetch('{{ route("biometric-operator.registration.search-student") }}', {
+            // Use API endpoint (no CSRF needed)
+            const response = await fetch('/api/biometric-operator/registration/search-student', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ search_term: searchTerm })
             });
@@ -462,11 +462,11 @@
         }
 
         try {
-            const response = await fetch('{{ route("biometric-operator.registration.save-fingerprint") }}', {
+            // Use API endpoint (no CSRF needed)
+            const response = await fetch('/api/biometric-operator/registration/save-fingerprint', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     student_id: currentStudent.id,

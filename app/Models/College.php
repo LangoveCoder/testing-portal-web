@@ -2,29 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;  // ← CORRECT import
 
 class College extends Authenticatable
 {
-    use HasFactory;
+    use HasApiTokens, Notifiable;  // ← Add HasApiTokens here
 
     protected $fillable = [
-    'name',
-    'contact_person',
-    'email',
-    'phone',
-    'province',
-    'division',
-    'district',
-    'address',
-    'min_age',
-    'max_age',
-    'gender_policy',
-    'registration_start_date',
-    'password',
-    'is_active',
-];
+        'name',
+        'email',
+        'password',
+        'phone',
+        'address',
+        'district',
+        'is_active',
+    ];
 
     protected $hidden = [
         'password',
@@ -32,23 +26,18 @@ class College extends Authenticatable
     ];
 
     protected $casts = [
-    'is_active' => 'boolean',
-    'registration_start_date' => 'date',
-];
+        'is_active' => 'boolean',
+        'password' => 'hashed',
+    ];
 
     // Relationships
-    public function testCenters()
-    {
-        return $this->hasMany(TestCenter::class);
-    }
-
     public function tests()
     {
         return $this->hasMany(Test::class);
     }
 
-    public function testDistricts()
+    public function students()
     {
-    return $this->hasMany(TestDistrict::class);
+        return $this->hasManyThrough(Student::class, Test::class);
     }
 }

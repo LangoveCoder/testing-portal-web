@@ -2,22 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;  // ← CORRECT import (Laravel\Sanctum, not App\Models)
 
 class BiometricOperator extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, Notifiable;  // ← Add HasApiTokens here
 
     protected $fillable = [
         'name',
         'email',
         'password',
-        'assigned_colleges',
-        'assigned_tests',
+        'phone',
         'status',
-        'created_by',
+        'assigned_college_id',
     ];
 
     protected $hidden = [
@@ -26,53 +25,18 @@ class BiometricOperator extends Authenticatable
     ];
 
     protected $casts = [
-        'assigned_colleges' => 'array',
-        'assigned_tests' => 'array',
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
     ];
 
-    /**
-     * Relationship: Created by Super Admin
-     */
-    public function creator()
+    // Relationships
+    public function assignedCollege()
     {
-        return $this->belongsTo(SuperAdmin::class, 'created_by');
+        return $this->belongsTo(College::class, 'assigned_college_id');
     }
 
-    /**
-     * Get assigned colleges
-     */
-    public function colleges()
-    {
-        if (!$this->assigned_colleges) {
-            return College::whereIn('id', [])->get();
-        }
-        return College::whereIn('id', $this->assigned_colleges)->get();
-    }
-
-    /**
-     * Get assigned tests
-     */
     public function tests()
     {
-        if (!$this->assigned_tests) {
-            return Test::whereIn('id', [])->get();
-        }
-        return Test::whereIn('id', $this->assigned_tests)->get();
-    }
-
-    /**
-     * Check if operator has access to a specific college
-     */
-    public function hasAccessToCollege($collegeId)
-    {
-        return in_array($collegeId, $this->assigned_colleges ?? []);
-    }
-
-    /**
-     * Check if operator has access to a specific test
-     */
-    public function hasAccessToTest($testId)
-    {
-        return in_array($testId, $this->assigned_tests ?? []);
+        return $this->belongsToMany(Test::class, 'biometric_operator_test');
     }
 }

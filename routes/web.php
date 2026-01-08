@@ -4,6 +4,17 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\SuperAdminAuthController;
 use App\Http\Controllers\Auth\CollegeAuthController;
 
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
+
 // ============================================
 // PUBLIC WEBSITE ROUTES
 // ============================================
@@ -163,6 +174,12 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
             Route::put('/{biometricOperator}', [\App\Http\Controllers\SuperAdmin\BiometricOperatorController::class, 'update'])->name('update');
             Route::delete('/{biometricOperator}', [\App\Http\Controllers\SuperAdmin\BiometricOperatorController::class, 'destroy'])->name('destroy');
         });
+
+        // Biometric Status
+        Route::prefix('biometric-status')->name('biometric-status.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\SuperAdmin\BiometricStatusController::class, 'index'])->name('index');
+            Route::get('/{student}', [\App\Http\Controllers\SuperAdmin\BiometricStatusController::class, 'show'])->name('show');
+        });
     });
 });
 
@@ -215,15 +232,17 @@ Route::prefix('college')->name('college.')->group(function () {
             Route::post('/result-report', [\App\Http\Controllers\College\ReportController::class, 'downloadResultReport'])->name('download-result-report');
         });
         
-        // ============================================
-        // FINGERPRINT VERIFICATION (NEW)
-        // ============================================
+        // Fingerprint Verification (WEB INTERFACE)
         Route::prefix('fingerprint-verification')->name('fingerprint-verification.')->group(function () {
             Route::get('/', [\App\Http\Controllers\College\FingerprintVerificationController::class, 'index'])->name('index');
-            Route::post('/load-student', [\App\Http\Controllers\College\FingerprintVerificationController::class, 'loadStudent'])->name('load-student');
-            Route::post('/log', [\App\Http\Controllers\College\FingerprintVerificationController::class, 'logVerification'])->name('log');
             Route::get('/history/{studentId}', [\App\Http\Controllers\College\FingerprintVerificationController::class, 'getVerificationHistory'])->name('history');
             Route::get('/statistics', [\App\Http\Controllers\College\FingerprintVerificationController::class, 'getStatistics'])->name('statistics');
+        });
+
+        // Biometric Status
+        Route::prefix('biometric-status')->name('biometric-status.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\College\BiometricStatusController::class, 'index'])->name('index');
+            Route::get('/{student}', [\App\Http\Controllers\College\BiometricStatusController::class, 'show'])->name('show');
         });
     });
 });
@@ -250,17 +269,29 @@ Route::prefix('student')->name('student.')->group(function () {
 });
 
 // ============================================
-// API ROUTES (Biometric Android App)
+// API ROUTES (Android App & Desktop Apps)
 // ============================================
 
+// Android App - Biometric APIs
 Route::prefix('api/biometric')->group(function () {
     Route::get('colleges', [App\Http\Controllers\Api\StudentBiometricController::class, 'getActiveColleges']);
     Route::post('student/info', [App\Http\Controllers\Api\StudentBiometricController::class, 'getStudentInfo']);
     Route::post('student/upload-photo', [App\Http\Controllers\Api\StudentBiometricController::class, 'uploadTestPhoto']);
 });
 
+// Desktop App API Routes (NO CSRF, NO SESSION)
+Route::prefix('api/biometric-operator/registration')->group(function () {
+    Route::post('/search-student', [App\Http\Controllers\BiometricOperator\RegistrationController::class, 'searchStudent']);
+    Route::post('/save-fingerprint', [App\Http\Controllers\BiometricOperator\RegistrationController::class, 'saveFingerprint']);
+});
+
+Route::prefix('api/college/fingerprint-verification')->group(function () {
+    Route::post('/load-student', [App\Http\Controllers\College\FingerprintVerificationController::class, 'loadStudent']);
+    Route::post('/log', [App\Http\Controllers\College\FingerprintVerificationController::class, 'logVerification']);
+});
+
 // ============================================
-// BIOMETRIC OPERATOR ROUTES
+// BIOMETRIC OPERATOR WEB ROUTES (WITH AUTH)
 // ============================================
 
 Route::prefix('biometric-operator')->name('biometric-operator.')->group(function () {
@@ -279,11 +310,9 @@ Route::prefix('biometric-operator')->name('biometric-operator.')->group(function
             return view('biometric_operator.dashboard', compact('assignedTests'));
         })->name('dashboard');
         
-        // Biometric Registration
+        // Biometric Registration (WEB INTERFACE)
         Route::prefix('registration')->name('registration.')->group(function () {
             Route::get('/', [App\Http\Controllers\BiometricOperator\RegistrationController::class, 'index'])->name('index');
-            Route::post('/search-student', [App\Http\Controllers\BiometricOperator\RegistrationController::class, 'searchStudent'])->name('search-student');
-            Route::post('/save-fingerprint', [App\Http\Controllers\BiometricOperator\RegistrationController::class, 'saveFingerprint'])->name('save-fingerprint');
             Route::get('/history', [App\Http\Controllers\BiometricOperator\RegistrationController::class, 'history'])->name('history');
         });
     });

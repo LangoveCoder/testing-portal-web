@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\BiometricOperator;
 
-class BiometricOperatorAuthController extends Controller
+class BiometricOperatorApiAuthController extends Controller
 {
     public function login(Request $request)
     {
@@ -25,10 +25,10 @@ class BiometricOperatorAuthController extends Controller
             ], 401);
         }
 
-        if ($operator->status === 'inactive') {
+        if (isset($operator->status) && $operator->status === 'inactive') {
             return response()->json([
                 'success' => false,
-                'message' => 'Your account has been deactivated.'
+                'message' => 'Account is deactivated'
             ], 403);
         }
 
