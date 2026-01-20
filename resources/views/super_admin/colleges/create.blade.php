@@ -3,7 +3,7 @@
 @section('title', 'Register New College')
 
 @section('content')
-<div class="min-h-screen bg-gray-100 dark:bg-dark-900">
+<div class="min-h-screen bg-gray-100 dark:bg-gray-900">
     <!-- Top Navigation Bar -->
     <nav class="bg-blue-600 dark:bg-blue-700 text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,7 +29,7 @@
 
     <!-- Main Content -->
     <div class="max-w-6xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div class="bg-white dark:bg-dark-800 shadow-md rounded-lg p-6 border border-gray-200 dark:border-dark-700">
+        <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 border border-gray-200 dark:border-gray-700">
             
             @if($errors->any())
                 <div class="bg-red-100 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-400 text-red-700 dark:text-red-400 p-4 mb-4">
@@ -45,53 +45,53 @@
             <form action="{{ route('super-admin.colleges.store') }}" method="POST">
                 @csrf
 
-                <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 border-b-2 border-gray-200 dark:border-dark-600 pb-2">College Information</h2>
+                <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 border-b-2 border-gray-200 dark:border-gray-600 pb-2">College Information</h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     
                     <!-- College Name -->
                     <div class="md:col-span-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             College Name <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="name" value="{{ old('name') }}" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-700 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400">
                     </div>
 
                     <!-- Contact Person -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Contact Person <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="contact_person" value="{{ old('contact_person') }}" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-700 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400">
                     </div>
 
                     <!-- Email -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Email Address <span class="text-red-500">*</span>
                         </label>
                         <input type="email" name="email" value="{{ old('email') }}" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-700 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400">
                     </div>
 
                     <!-- Phone -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Phone Number <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="phone" value="{{ old('phone') }}" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-700 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400">
                     </div>
 
                     <!-- Province -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Province <span class="text-red-500">*</span>
                         </label>
                         <select name="province" id="province" required onchange="toggleDivision()"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                                class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-700 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400">
                             <option value="">Select Province</option>
                             <option value="Balochistan" {{ old('province') == 'Balochistan' ? 'selected' : '' }}>Balochistan</option>
                             <option value="Sindh" {{ old('province') == 'Sindh' ? 'selected' : '' }}>Sindh</option>
@@ -105,11 +105,11 @@
 
                     <!-- Division (Only for Balochistan) -->
                     <div id="divisionContainer" style="display: none;">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Division
                         </label>
                         <select name="division" id="division"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                                class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-700 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400">
                             <option value="">Select Division</option>
                             <option value="Quetta" {{ old('division') == 'Quetta' ? 'selected' : '' }}>Quetta</option>
                             <option value="Kalat" {{ old('division') == 'Kalat' ? 'selected' : '' }}>Kalat</option>
@@ -124,48 +124,48 @@
 
                     <!-- District -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             District <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="district" value="{{ old('district') }}" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-700 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400">
                     </div>
 
                     <!-- Address -->
                     <div class="md:col-span-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Address <span class="text-red-500">*</span>
                         </label>
                         <textarea name="address" rows="3" required
-                                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">{{ old('address') }}</textarea>
+                                  class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-700 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400">{{ old('address') }}</textarea>
                     </div>
 
                     <!-- Age Policy -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Minimum Age (Optional)
                         </label>
                         <input type="number" name="min_age" value="{{ old('min_age') }}" min="1" max="100"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500"
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-700 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
                                placeholder="e.g., 17">
                     </div>
 
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Maximum Age (Optional)
                         </label>
                         <input type="number" name="max_age" value="{{ old('max_age') }}" min="1" max="100"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500"
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-700 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
                                placeholder="e.g., 25">
                     </div>
 
                     <!-- Gender Policy -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Gender Policy <span class="text-red-500">*</span>
                         </label>
                         <select name="gender_policy" required
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                                class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-700 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400">
                             <option value="">Select Gender Policy</option>
                             <option value="Male Only" {{ old('gender_policy') == 'Male Only' ? 'selected' : '' }}>Male Only</option>
                             <option value="Female Only" {{ old('gender_policy') == 'Female Only' ? 'selected' : '' }}>Female Only</option>
@@ -174,52 +174,52 @@
                     </div>
                     <!-- Registration Start Date -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Registration Start Date (Optional)
                         </label>
                         <input type="date" name="registration_start_date" value="{{ old('registration_start_date') }}"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
-                        <p class="text-xs text-gray-500 mt-1">Age will be calculated on this date</p>
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-700 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Age will be calculated on this date</p>
                     </div>
                     <!-- Password -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Password <span class="text-red-500">*</span>
                         </label>
                         <input type="password" name="password" required minlength="6"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
-                        <p class="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-700 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Minimum 6 characters</p>
                     </div>
 
                     <!-- Confirm Password -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Confirm Password <span class="text-red-500">*</span>
                         </label>
                         <input type="password" name="password_confirmation" required minlength="6"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-700 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400">
                     </div>
 
                     <!-- Test Districts Section -->
                     <div class="md:col-span-2 mt-8">
-                        <div class="border-t-2 border-gray-200 pt-6">
-                            <h2 class="text-xl font-bold text-gray-800 mb-4">Assign Test Districts</h2>
-                            <p class="text-sm text-gray-600 mb-4">Add districts where students can take their tests. Test centers (venues) will be assigned later when creating the test.</p>
+                        <div class="border-t-2 border-gray-200 dark:border-gray-600 pt-6">
+                            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Assign Test Districts</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Add districts where students can take their tests. Test centers (venues) will be assigned later when creating the test.</p>
                             
                             <div id="testDistrictsContainer">
                                 <!-- Test District 1 (Default) -->
-                                <div class="test-district-block border border-gray-300 rounded-lg p-4 mb-4 bg-gray-50">
+                                <div class="test-district-block border border-gray-300 dark:border-gray-600 rounded-lg p-4 mb-4 bg-gray-50 dark:bg-gray-700">
                                     <div class="flex justify-between items-center mb-3">
-                                        <h4 class="font-bold text-gray-700">Test District #1</h4>
+                                        <h4 class="font-bold text-gray-700 dark:text-gray-200">Test District #1</h4>
                                     </div>
                                     
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div>
-                                            <label class="block text-gray-700 text-sm font-bold mb-2">
+                                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                                                 Province <span class="text-red-500">*</span>
                                             </label>
                                             <select name="test_districts[0][province]" required onchange="toggleTestDistrictDivision(0)"
-                                                    class="td-province shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                                                    class="td-province shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-600 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400">
                                                 <option value="">Select Province</option>
                                                 <option value="Balochistan" {{ old('test_districts.0.province') == 'Balochistan' ? 'selected' : '' }}>Balochistan</option>
                                                 <option value="Sindh" {{ old('test_districts.0.province') == 'Sindh' ? 'selected' : '' }}>Sindh</option>
@@ -232,10 +232,10 @@
                                         </div>
 
                                         <div class="td-division-container" style="display: none;">
-                                            <label class="block text-gray-700 text-sm font-bold mb-2">
+                                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                                                 Division
                                             </label>
-                                            <select name="test_districts[0][division]" class="td-division shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                                            <select name="test_districts[0][division]" class="td-division shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-600 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400">
                                                 <option value="">Select Division</option>
                                                 <option value="Quetta" {{ old('test_districts.0.division') == 'Quetta' ? 'selected' : '' }}>Quetta</option>
                                                 <option value="Kalat" {{ old('test_districts.0.division') == 'Kalat' ? 'selected' : '' }}>Kalat</option>
@@ -249,11 +249,11 @@
                                         </div>
 
                                         <div>
-                                            <label class="block text-gray-700 text-sm font-bold mb-2">
+                                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                                                 District <span class="text-red-500">*</span>
                                             </label>
                                             <input type="text" name="test_districts[0][district]" value="{{ old('test_districts.0.district') }}" required
-                                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500"
+                                                   class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-600 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
                                                    placeholder="e.g., Quetta">
                                         </div>
                                     </div>
@@ -261,7 +261,7 @@
                             </div>
 
                             <button type="button" onclick="addTestDistrict()" 
-                                    class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                                    class="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
                                 + Add Another Test District
                             </button>
                         </div>
@@ -271,11 +271,11 @@
                 <!-- Submit Buttons -->
                 <div class="flex items-center justify-end space-x-4 mt-6">
                     <a href="{{ route('super-admin.colleges.index') }}" 
-                       class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded">
+                       class="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-500 text-white font-bold py-2 px-6 rounded">
                         Cancel
                     </a>
                     <button type="submit" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded">
+                            class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white font-bold py-2 px-6 rounded">
                         Register College
                     </button>
                 </div>
@@ -305,9 +305,9 @@ function toggleDivision() {
 function addTestDistrict() {
     const container = document.getElementById('testDistrictsContainer');
     const newBlock = `
-        <div class="test-district-block border border-gray-300 rounded-lg p-4 mb-4 bg-gray-50">
+        <div class="test-district-block border border-gray-300 dark:border-gray-600 rounded-lg p-4 mb-4 bg-gray-50 dark:bg-gray-700">
             <div class="flex justify-between items-center mb-3">
-                <h4 class="font-bold text-gray-700">Test District #${testDistrictCount + 1}</h4>
+                <h4 class="font-bold text-gray-700 dark:text-gray-200">Test District #${testDistrictCount + 1}</h4>
                 <button type="button" onclick="removeTestDistrict(this)" 
                         class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
                     Remove
@@ -316,11 +316,11 @@ function addTestDistrict() {
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                         Province <span class="text-red-500">*</span>
                     </label>
                     <select name="test_districts[${testDistrictCount}][province]" required onchange="toggleTestDistrictDivision(${testDistrictCount})"
-                            class="td-province shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                            class="td-province shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-600 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400">
                         <option value="">Select Province</option>
                         <option value="Balochistan">Balochistan</option>
                         <option value="Sindh">Sindh</option>
@@ -333,10 +333,10 @@ function addTestDistrict() {
                 </div>
 
                 <div class="td-division-container" style="display: none;">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                         Division
                     </label>
-                    <select name="test_districts[${testDistrictCount}][division]" class="td-division shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                    <select name="test_districts[${testDistrictCount}][division]" class="td-division shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-600 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400">
                         <option value="">Select Division</option>
                         <option value="Quetta">Quetta</option>
                         <option value="Kalat">Kalat</option>
@@ -350,11 +350,11 @@ function addTestDistrict() {
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                         District <span class="text-red-500">*</span>
                     </label>
                     <input type="text" name="test_districts[${testDistrictCount}][district]" required
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500"
+                           class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-600 leading-tight focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
                            placeholder="e.g., Quetta">
                 </div>
             </div>

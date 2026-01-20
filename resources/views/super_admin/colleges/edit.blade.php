@@ -3,13 +3,13 @@
 @section('title', 'Edit College')
 
 @section('content')
-<div class="min-h-screen bg-gray-100 dark:bg-dark-900">
+<div class="min-h-screen bg-gray-100 dark:bg-gray-900">
     <!-- Top Navigation Bar -->
     <nav class="bg-blue-600 dark:bg-blue-700 text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center space-x-4">
-                    <a href="{{ route('super-admin.colleges.index') }}" class="text-white hover:text-gray-200">
+                    <a href="{{ route('super-admin.colleges.index') }}" class="text-white hover:text-gray-200 dark:hover:text-gray-300">
                         ← Back to Colleges
                     </a>
                     <h1 class="text-xl font-bold">Edit College</h1>
@@ -18,7 +18,7 @@
                     <span>{{ Auth::guard('super_admin')->user()->name }}</span>
                     <form method="POST" action="{{ route('super-admin.logout') }}">
                         @csrf
-                        <button type="submit" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">
+                        <button type="submit" class="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 px-4 py-2 rounded transition-colors">
                             Logout
                         </button>
                     </form>
@@ -29,10 +29,10 @@
 
     <!-- Main Content -->
     <div class="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div class="bg-white shadow-md rounded-lg p-6">
+        <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 border border-gray-200 dark:border-gray-700">
             
             @if($errors->any())
-                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+                <div class="bg-red-100 dark:bg-red-900/30 border-l-4 border-red-500 dark:border-red-700 text-red-700 dark:text-red-300 p-4 mb-4">
                     <p class="font-bold">Please fix the following errors:</p>
                     <ul class="list-disc list-inside">
                         @foreach($errors->all() as $error)
@@ -46,53 +46,53 @@
                 @csrf
                 @method('PUT')
 
-                <h2 class="text-xl font-bold text-gray-800 mb-4 border-b-2 border-gray-200 pb-2">College Information</h2>
+                <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 border-b-2 border-gray-200 dark:border-gray-700 pb-2">College Information</h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     
                     <!-- College Name -->
                     <div class="md:col-span-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             College Name <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="name" value="{{ old('name', $college->name) }}" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">
                     </div>
 
                     <!-- Contact Person -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Contact Person <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="contact_person" value="{{ old('contact_person', $college->contact_person) }}" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">
                     </div>
 
                     <!-- Email -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Email Address <span class="text-red-500">*</span>
                         </label>
                         <input type="email" name="email" value="{{ old('email', $college->email) }}" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">
                     </div>
 
                     <!-- Phone -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Phone Number <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="phone" value="{{ old('phone', $college->phone) }}" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">
                     </div>
 
                     <!-- Province -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Province <span class="text-red-500">*</span>
                         </label>
                         <select name="province" id="province" required onchange="toggleDivision()"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                                class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">
                             <option value="">Select Province</option>
                             <option value="Balochistan" {{ old('province', $college->province) == 'Balochistan' ? 'selected' : '' }}>Balochistan</option>
                             <option value="Sindh" {{ old('province', $college->province) == 'Sindh' ? 'selected' : '' }}>Sindh</option>
@@ -106,11 +106,11 @@
 
                     <!-- Division (Only for Balochistan) -->
                     <div id="divisionContainer" style="display: none;">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Division
                         </label>
                         <select name="division" id="division"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                                class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">
                             <option value="">Select Division</option>
                             <option value="Quetta" {{ old('division', $college->division) == 'Quetta' ? 'selected' : '' }}>Quetta</option>
                             <option value="Kalat" {{ old('division', $college->division) == 'Kalat' ? 'selected' : '' }}>Kalat</option>
@@ -125,48 +125,48 @@
 
                     <!-- District -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             District <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="district" value="{{ old('district', $college->district) }}" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">
                     </div>
 
                     <!-- Address -->
                     <div class="md:col-span-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Address <span class="text-red-500">*</span>
                         </label>
                         <textarea name="address" rows="3" required
-                                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">{{ old('address', $college->address) }}</textarea>
+                                  class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">{{ old('address', $college->address) }}</textarea>
                     </div>
 
                     <!-- Age Policy -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Minimum Age (Optional)
                         </label>
                         <input type="number" name="min_age" value="{{ old('min_age', $college->min_age) }}" min="1" max="100"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500"
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
                                placeholder="e.g., 17">
                     </div>
 
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Maximum Age (Optional)
                         </label>
                         <input type="number" name="max_age" value="{{ old('max_age', $college->max_age) }}" min="1" max="100"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500"
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
                                placeholder="e.g., 25">
                     </div>
 
                     <!-- Gender Policy -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Gender Policy <span class="text-red-500">*</span>
                         </label>
                         <select name="gender_policy" required
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                                class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">
                             <option value="">Select Gender Policy</option>
                             <option value="Male Only" {{ old('gender_policy', $college->gender_policy) == 'Male Only' ? 'selected' : '' }}>Male Only</option>
                             <option value="Female Only" {{ old('gender_policy', $college->gender_policy) == 'Female Only' ? 'selected' : '' }}>Female Only</option>
@@ -175,32 +175,32 @@
                     </div>
                     <!-- Registration Start Date -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Registration Start Date (Optional)
                         </label>
                         <input type="date" name="registration_start_date" value="{{ old('registration_start_date', $college->registration_start_date ? $college->registration_start_date->format('Y-m-d') : '') }}"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
-                        <p class="text-xs text-gray-500 mt-1">Age will be calculated on this date</p>
+                               class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Age will be calculated on this date</p>
                     </div>
                     <!-- Status -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Status <span class="text-red-500">*</span>
                         </label>
                         <select name="is_active" required
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500">
+                                class="shadow appearance-none border dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">
                             <option value="1" {{ old('is_active', $college->is_active) == 1 ? 'selected' : '' }}>Active</option>
                             <option value="0" {{ old('is_active', $college->is_active) == 0 ? 'selected' : '' }}>Inactive</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- Test Districts Information -->
-                <div class="border-t-2 border-gray-200 pt-6 mt-6">
+                <!-- Test Districts Information (FIXED - Uses test_districts table) -->
+                <div class="border-t-2 border-gray-200 dark:border-gray-700 pt-6 mt-6">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-bold text-gray-800">Assigned Test Districts</h3>
+                        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">Assigned Test Districts</h3>
                         <a href="{{ route('super-admin.colleges.add-test-districts', $college) }}" 
-                           class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                           class="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white font-bold py-2 px-4 rounded inline-flex items-center transition-colors">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                             </svg>
@@ -208,33 +208,37 @@
                         </a>
                     </div>
                     
-                    @if($college->testDistricts->count() > 0)
+                    @php
+                        $testDistricts = \App\Models\TestDistrict::where('college_id', $college->id)->get();
+                    @endphp
+                    
+                    @if($testDistricts->count() > 0)
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            @foreach($college->testDistricts as $index => $district)
-                                <div class="border border-gray-300 rounded-lg p-4 bg-gray-50">
-                                    <h4 class="font-bold text-gray-700 mb-2">Test District #{{ $index + 1 }}</h4>
-                                    <p class="text-sm text-gray-600">
+                            @foreach($testDistricts as $index => $district)
+                                <div class="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
+                                    <h4 class="font-bold text-gray-700 dark:text-gray-200 mb-2">Test District #{{ $index + 1 }}</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">
                                         <span class="font-semibold">Province:</span> {{ $district->province }}
                                     </p>
                                     @if($district->division)
-                                    <p class="text-sm text-gray-600">
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">
                                         <span class="font-semibold">Division:</span> {{ $district->division }}
                                     </p>
                                     @endif
-                                    <p class="text-sm text-gray-600">
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">
                                         <span class="font-semibold">District:</span> {{ $district->district }}
                                     </p>
                                 </div>
                             @endforeach
                         </div>
-                        <div class="mt-4 p-3 bg-blue-50 border-l-4 border-blue-500 text-blue-700">
+                        <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 dark:border-blue-600 text-blue-700 dark:text-blue-300">
                             <p class="text-sm">
                                 <strong>Note:</strong> You can add new test districts but cannot remove existing ones to protect student data.
                             </p>
                         </div>
                     @else
-                        <p class="text-gray-500 mb-3">No test districts assigned yet.</p>
-                        <div class="p-3 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700">
+                        <p class="text-gray-500 dark:text-gray-400 mb-3">No test districts assigned yet.</p>
+                        <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 dark:border-yellow-600 text-yellow-700 dark:text-yellow-300">
                             <p class="text-sm">
                                 <strong>Warning:</strong> This college has no test districts. Please add at least one test district.
                             </p>
@@ -245,11 +249,11 @@
                 <!-- Submit Buttons -->
                 <div class="flex items-center justify-end space-x-4 mt-6">
                     <a href="{{ route('super-admin.colleges.index') }}" 
-                       class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded">
+                       class="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-2 px-6 rounded transition-colors">
                         Cancel
                     </a>
                     <button type="submit" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded">
+                            class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white font-bold py-2 px-6 rounded transition-colors">
                         Update College
                     </button>
                 </div>

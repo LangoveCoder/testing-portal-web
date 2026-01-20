@@ -69,9 +69,10 @@ class CollegeController extends Controller
             'is_active' => $validated['is_active'],
         ]);
 
-        // Create test districts
+        // Create test districts in test_districts table (old system)
         foreach ($validated['test_districts'] as $district) {
-            $college->testDistricts()->create([
+            TestDistrict::create([
+                'college_id' => $college->id,
                 'province' => $district['province'],
                 'division' => $district['division'] ?? null,
                 'district' => $district['district'],
@@ -170,7 +171,8 @@ class CollegeController extends Controller
     // API: Get test districts for a college
     public function getTestDistricts(College $college)
     {
-        $testDistricts = $college->testDistricts()
+        // Return from the test_districts table (old system)
+        $testDistricts = TestDistrict::where('college_id', $college->id)
             ->select('id', 'province', 'division', 'district')
             ->get();
         
@@ -197,8 +199,8 @@ class CollegeController extends Controller
         $duplicates = [];
 
         foreach ($validated['test_districts'] as $districtData) {
-            // Check if this district already exists for this college
-            $exists = $college->testDistricts()
+            // Check if this district already exists for this college in test_districts table
+            $exists = TestDistrict::where('college_id', $college->id)
                 ->where('province', $districtData['province'])
                 ->where('district', $districtData['district'])
                 ->exists();
@@ -206,7 +208,8 @@ class CollegeController extends Controller
             if ($exists) {
                 $duplicates[] = $districtData['district'] . ', ' . $districtData['province'];
             } else {
-                $college->testDistricts()->create([
+                TestDistrict::create([
+                    'college_id' => $college->id,
                     'province' => $districtData['province'],
                     'division' => $districtData['division'] ?? null,
                     'district' => $districtData['district'],

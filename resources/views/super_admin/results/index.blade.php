@@ -3,23 +3,29 @@
 @section('title', 'Result Management')
 
 @section('content')
-<div class="min-h-screen bg-gray-100 dark:bg-dark-900">
+<div class="min-h-screen bg-gray-50 dark:bg-dark-900">
     <!-- Top Navigation Bar -->
-    <nav class="bg-blue-600 dark:bg-blue-700 text-white shadow-lg">
+    <nav class="sticky top-0 z-50 bg-white/80 dark:bg-dark-800/80 backdrop-blur-md border-b border-gray-200 dark:border-dark-700">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center space-x-4">
-                    <a href="{{ route('super-admin.dashboard') }}" class="text-white hover:text-gray-200">
-                        ← Back to Dashboard
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('super-admin.dashboard') }}" class="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                        <span class="material-icons-outlined text-xl mr-2">arrow_back</span>
+                        Dashboard
                     </a>
-                    <h1 class="text-xl font-bold">Result Management</h1>
+                    <div class="h-6 w-px bg-gray-300 dark:bg-dark-700"></div>
+                    <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Result Management</h1>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <span>{{ Auth::guard('super_admin')->user()->name }}</span>
+                <div class="flex items-center gap-4">
+                    <div class="hidden md:flex flex-col items-end mr-2">
+                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ Auth::guard('super_admin')->user()->name }}</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Super Admin</span>
+                    </div>
                     <form method="POST" action="{{ route('super-admin.logout') }}">
                         @csrf
-                        <button type="submit" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">
-                            Logout
+                        <button type="submit" class="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors border border-red-100 dark:border-red-900/50">
+                            <span class="material-icons-outlined text-lg">logout</span>
+                            <span>Logout</span>
                         </button>
                     </form>
                 </div>
@@ -27,85 +33,77 @@
         </div>
     </nav>
 
-    <!-- Success/Error Messages -->
-    @if(session('success'))
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-                {{ session('success') }}
-            </div>
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                {{ session('error') }}
-            </div>
-        </div>
-    @endif
-
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <main class="flex-grow py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         
-        <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white rounded-lg shadow p-6">
+        <!-- Success/Error Messages -->
+        @if(session('success'))
+            <div class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 animate-fade-in">
                 <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
-                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
+                    <span class="material-icons-outlined text-green-600 dark:text-green-400 mr-3">check_circle</span>
+                    <p class="text-green-800 dark:text-green-200 font-medium">{{ session('success') }}</p>
+                </div>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 animate-fade-in">
+                <div class="flex items-center">
+                    <span class="material-icons-outlined text-red-600 dark:text-red-400 mr-3">error</span>
+                    <p class="text-red-800 dark:text-red-200 font-medium">{{ session('error') }}</p>
+                </div>
+            </div>
+        @endif
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white dark:bg-dark-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-dark-700">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-blue-100 dark:bg-blue-900/30 rounded-xl p-3">
+                        <span class="material-icons-outlined text-2xl text-blue-600 dark:text-blue-400">description</span>
                     </div>
                     <div class="ml-5">
-                        <p class="text-sm font-medium text-gray-500">Total Tests</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ $tests->count() }}</p>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Tests</p>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $tests->count() }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="bg-white dark:bg-dark-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-dark-700">
                 <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
-                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                    <div class="flex-shrink-0 bg-green-100 dark:bg-green-900/30 rounded-xl p-3">
+                        <span class="material-icons-outlined text-2xl text-green-600 dark:text-green-400">check_circle</span>
                     </div>
                     <div class="ml-5">
-                        <p class="text-sm font-medium text-gray-500">Results Uploaded</p>
-                        <p class="text-2xl font-semibold text-gray-900">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Results Uploaded</p>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-white">
                             {{ \App\Models\Result::distinct('test_id')->count('test_id') }}
                         </p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="bg-white dark:bg-dark-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-dark-700">
                 <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-purple-500 rounded-md p-3">
-                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
+                    <div class="flex-shrink-0 bg-purple-100 dark:bg-purple-900/30 rounded-xl p-3">
+                        <span class="material-icons-outlined text-2xl text-purple-600 dark:text-purple-400">visibility</span>
                     </div>
                     <div class="ml-5">
-                        <p class="text-sm font-medium text-gray-500">Published Results</p>
-                        <p class="text-2xl font-semibold text-gray-900">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Published Results</p>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-white">
                             {{ \App\Models\Result::where('is_published', true)->distinct('test_id')->count('test_id') }}
                         </p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="bg-white dark:bg-dark-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-dark-700">
                 <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
-                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                    <div class="flex-shrink-0 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl p-3">
+                        <span class="material-icons-outlined text-2xl text-yellow-600 dark:text-yellow-400">schedule</span>
                     </div>
                     <div class="ml-5">
-                        <p class="text-sm font-medium text-gray-500">Pending Results</p>
-                        <p class="text-2xl font-semibold text-gray-900">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Results</p>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-white">
                             {{ $tests->filter(function($test) { 
                                 return $test->students_count > 0 && \App\Models\Result::where('test_id', $test->id)->count() == 0;
                             })->count() }}
@@ -116,86 +114,150 @@
         </div>
 
         <!-- Tests List -->
-        <div class="bg-white shadow rounded-lg overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-xl font-bold text-gray-800">Tests</h2>
+        <div class="bg-white dark:bg-dark-800 rounded-2xl shadow-lg border border-gray-200 dark:border-dark-700 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-dark-700">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Tests</h2>
             </div>
 
             @if($tests->count() > 0)
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                <!-- Mobile Cards (Hidden on larger screens) -->
+                <div class="block lg:hidden">
+                    @foreach($tests as $test)
+                        @php
+                            $resultsCount = \App\Models\Result::where('test_id', $test->id)->count();
+                            $publishedCount = \App\Models\Result::where('test_id', $test->id)->where('is_published', true)->count();
+                        @endphp
+                        <div class="p-6 border-b border-gray-200 dark:border-dark-700 last:border-b-0">
+                            <div class="flex items-start justify-between mb-4">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $test->college->name }}</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ ucfirst(str_replace('_', ' ', $test->test_mode)) }} - {{ $test->total_marks }} marks</p>
+                                </div>
+                                @if($resultsCount == 0)
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
+                                        No Results
+                                    </span>
+                                @elseif($publishedCount > 0)
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
+                                        Published ({{ $publishedCount }}/{{ $resultsCount }})
+                                    </span>
+                                @else
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300">
+                                        Uploaded ({{ $resultsCount }})
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <span class="text-gray-500 dark:text-gray-400">Test Date:</span>
+                                    <p class="text-gray-900 dark:text-gray-100">{{ $test->test_date->format('d M Y') }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ date('h:i A', strtotime($test->test_time)) }}</p>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500 dark:text-gray-400">Students:</span>
+                                    <p class="text-gray-900 dark:text-gray-100 font-semibold">{{ $test->students_count }}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-end">
+                                @if($test->roll_numbers_generated)
+                                    @if($resultsCount == 0)
+                                        <a href="{{ route('super-admin.results.create', $test) }}" 
+                                           class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white font-medium rounded-lg transition-colors">
+                                            <span class="material-icons-outlined text-lg mr-2">upload</span>
+                                            Upload Results
+                                        </a>
+                                    @else
+                                        <a href="{{ route('super-admin.results.show', $test) }}" 
+                                           class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white font-medium rounded-lg transition-colors">
+                                            <span class="material-icons-outlined text-lg mr-2">visibility</span>
+                                            View Results
+                                        </a>
+                                    @endif
+                                @else
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">Generate Roll Numbers First</span>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Desktop Table (Hidden on smaller screens) -->
+                <div class="hidden lg:block overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-dark-700">
+                        <thead class="bg-gray-50 dark:bg-dark-700">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                                     College & Test
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                                     Test Date
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                                     Students
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                                     Results Status
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                                     Actions
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-dark-700">
                             @foreach($tests as $test)
                                 @php
                                     $resultsCount = \App\Models\Result::where('test_id', $test->id)->count();
                                     $publishedCount = \App\Models\Result::where('test_id', $test->id)->where('is_published', true)->count();
                                 @endphp
-                                <tr class="hover:bg-gray-50">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors">
                                     <td class="px-6 py-4">
-                                        <div class="text-sm font-medium text-gray-900">{{ $test->college->name }}</div>
-                                        <div class="text-xs text-gray-500">
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $test->college->name }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">
                                             {{ ucfirst(str_replace('_', ' ', $test->test_mode)) }} - {{ $test->total_marks }} marks
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-gray-900">
-                                        {{ $test->test_date->format('d M Y') }}
-                                        <div class="text-xs text-gray-500">
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm text-gray-900 dark:text-gray-100">{{ $test->test_date->format('d M Y') }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">
                                             {{ date('h:i A', strtotime($test->test_time)) }}
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-gray-900">
-                                        <div class="font-semibold">{{ $test->students_count }}</div>
-                                        <div class="text-xs text-gray-500">Total Students</div>
+                                    <td class="px-6 py-4">
+                                        <div class="font-semibold text-gray-900 dark:text-white">{{ $test->students_count }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Total Students</div>
                                     </td>
                                     <td class="px-6 py-4">
                                         @if($resultsCount == 0)
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
                                                 No Results
                                             </span>
                                         @elseif($publishedCount > 0)
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
                                                 Published ({{ $publishedCount }}/{{ $resultsCount }})
                                             </span>
                                         @else
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300">
                                                 Uploaded ({{ $resultsCount }})
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 text-sm font-medium space-x-2">
+                                    <td class="px-6 py-4 text-right">
                                         @if($test->roll_numbers_generated)
                                             @if($resultsCount == 0)
                                                 <a href="{{ route('super-admin.results.create', $test) }}" 
-                                                   class="text-blue-600 hover:text-blue-900">
+                                                   class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white font-medium rounded-lg transition-colors">
+                                                    <span class="material-icons-outlined text-lg mr-2">upload</span>
                                                     Upload Results
                                                 </a>
                                             @else
                                                 <a href="{{ route('super-admin.results.show', $test) }}" 
-                                                   class="text-green-600 hover:text-green-900">
+                                                   class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white font-medium rounded-lg transition-colors">
+                                                    <span class="material-icons-outlined text-lg mr-2">visibility</span>
                                                     View Results
                                                 </a>
                                             @endif
                                         @else
-                                            <span class="text-xs text-gray-500">Generate Roll Numbers First</span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">Generate Roll Numbers First</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -204,15 +266,15 @@
                     </table>
                 </div>
             @else
-                <div class="text-center py-12">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <h3 class="mt-2 text-sm font-medium text-gray-900">No tests found</h3>
-                    <p class="mt-1 text-sm text-gray-500">Create a test first to upload results</p>
+                <div class="p-12 text-center">
+                    <div class="w-16 h-16 bg-gray-100 dark:bg-dark-700 rounded-2xl flex items-center justify-center mb-4 mx-auto">
+                        <span class="material-icons-outlined text-2xl text-gray-400">description</span>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No tests found</h3>
+                    <p class="text-gray-500 dark:text-gray-400">Create a test first to upload results</p>
                 </div>
             @endif
         </div>
-    </div>
+    </main>
 </div>
 @endsection

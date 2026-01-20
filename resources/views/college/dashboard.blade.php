@@ -39,7 +39,7 @@
                         C
                     </div>
                     <span class="font-bold text-xl tracking-tight text-gray-900 dark:text-white">
-                        College<span class="text-secondary-600 dark:text-secondary-400">Portal</span>
+                        College<span class="text-secondary-600 dark:text-secondary-400"> Portal</span>
                     </span>
                 </div>
                 <div class="flex items-center gap-4">

@@ -53,10 +53,19 @@ class StudentBiometricController extends Controller
         ], 422);
     }
 
-    $student = Student::where('roll_number', $request->roll_number)
+    // ✅ UPDATED: Get college_id from authenticated operator if available
+    $collegeId = $request->college_id;
+    
+    $query = Student::where('roll_number', $request->roll_number)
         ->whereNotNull('roll_number')
-        ->with(['test.college', 'testDistrict'])
-        ->first();
+        ->with(['test.college', 'testDistrict']);
+    
+    // ✅ Filter by college if provided
+    if ($collegeId) {
+        $query->where('college_id', $collegeId);
+    }
+    
+    $student = $query->first();
 
     if (!$student) {
         return response()->json([
@@ -79,8 +88,8 @@ class StudentBiometricController extends Controller
             'test_photo_captured' => !is_null($student->test_photo),
             'test_name' => $student->test->college->name ?? 'N/A',
             'test_date' => $student->test->test_date->format('d M Y'),
-            'college_id' => $student->test->college_id,  // ADD THIS
-            'college_name' => $student->test->college->name ?? 'N/A',  // ADD THIS
+            'college_id' => $student->college_id,
+            'college_name' => $student->test->college->name ?? 'N/A',
             'hall_number' => $student->hall_number,
             'zone_number' => $student->zone_number,
             'row_number' => $student->row_number,
@@ -91,7 +100,6 @@ class StudentBiometricController extends Controller
         ]
     ]);
 }
-
     /**
      * Upload test photo (for Android app after camera capture)
      */
@@ -467,14 +475,12 @@ class StudentBiometricController extends Controller
         ]);
     }
 
-    public function bulkDownload(Request $request)
+ public function bulkDownload(Request $request)
 {
     $validator = Validator::make($request->all(), [
         'test_id' => 'nullable|exists:tests,id',
         'college_id' => 'nullable|exists:colleges,id',
         'include_biometric_data' => 'nullable|boolean',
-        'page' => 'nullable|integer|min:1',
-        'per_page' => 'nullable|integer|min:1|max:500',
     ]);
 
     if ($validator->fails()) {
@@ -495,16 +501,10 @@ class StudentBiometricController extends Controller
 
     // Filter by college if provided
     if ($request->has('college_id')) {
-        $query->whereHas('test', function($q) use ($request) {
-            $q->where('college_id', $request->college_id);
-        });
+        $query->where('college_id', $request->college_id); // ✅ Direct filter
     }
 
-    // Pagination
-    $perPage = $request->per_page ?? 100;
-    $page = $request->page ?? 1;
-
-    // Get students with relationships
+    // ✅ Get ALL students - NO PAGINATION
     $students = $query->with(['test.college', 'testDistrict', 'attendance'])
         ->select([
             'id',
@@ -527,66 +527,59 @@ class StudentBiometricController extends Controller
             'row_number',
             'seat_number'
         ])
-        ->paginate($perPage, ['*'], 'page', $page);
+        ->get(); // ✅ Changed from paginate() to get()
 
-    $studentsData = $students->getCollection()->map(function($student) use ($request) {
-        $data = [
-            'id' => $student->id,
-            'roll_number' => $student->roll_number,
-            'name' => $student->name,
-            'father_name' => $student->father_name,
-            'cnic' => $student->cnic,
-            'gender' => $student->gender,
-            'picture' => $student->picture ? asset('storage/' . $student->picture) : null,
-            'test_photo' => $student->test_photo ? asset('storage/' . $student->test_photo) : null,
-            'test_photo_captured' => !is_null($student->test_photo),
-            'test_name' => $student->test->college->name ?? 'N/A',
-            'test_date' => $student->test->test_date->format('d M Y'),
-            'college_id' => $student->college_id,
-            'college_name' => $student->test->college->name ?? 'N/A',
-            'hall_number' => $student->hall_number,
-            'zone_number' => $student->zone_number,
-            'row_number' => $student->row_number,
-            'seat_number' => $student->seat_number,
-            'venue' => $student->testDistrict 
-                ? $student->testDistrict->district . ', ' . $student->testDistrict->province 
-                : 'N/A',
-            'biometric_status' => [
-                'has_fingerprint' => !is_null($student->fingerprint_template),
-                'fingerprint_quality' => $student->fingerprint_quality,
-                'registered_at' => $student->fingerprint_registered_at ? 
-                    $student->fingerprint_registered_at->format('d M Y, h:i A') : null,
-                'quality_status' => $student->fingerprint_quality ? 
-                    ($student->fingerprint_quality >= 80 ? 'Excellent' : 
-                     ($student->fingerprint_quality >= 70 ? 'Good' : 'Acceptable')) : null,
-            ]
+    $studentsData = $students->map(function($student) use ($request) {
+    $data = [
+        'id' => $student->id,
+        'roll_number' => $student->roll_number,
+        'name' => $student->name,
+        'father_name' => $student->father_name,
+        'cnic' => $student->cnic,
+        'gender' => $student->gender,
+        'picture' => $student->picture ? asset('storage/' . $student->picture) : null,
+        'test_photo' => $student->test_photo ? asset('storage/' . $student->test_photo) : null,
+        'test_photo_captured' => !is_null($student->test_photo),
+        'test_name' => optional($student->test->college)->name ?? 'N/A',
+        'test_date' => optional($student->test)->test_date ? $student->test->test_date->format('d M Y') : 'N/A',
+        'college_id' => $student->college_id ?? optional($student->test)->college_id ?? null, // ✅ FIX THIS
+        'college_name' => optional($student->test->college)->name ?? 'N/A',
+        'hall_number' => $student->hall_number,
+        'zone_number' => $student->zone_number,
+        'row_number' => $student->row_number,
+        'seat_number' => $student->seat_number,
+        'venue' => $student->testDistrict 
+            ? $student->testDistrict->district . ', ' . $student->testDistrict->province 
+            : 'N/A',
+        'biometric_status' => [
+            'has_fingerprint' => !is_null($student->fingerprint_template),
+            'fingerprint_quality' => $student->fingerprint_quality,
+            'registered_at' => $student->fingerprint_registered_at ? 
+                $student->fingerprint_registered_at->format('d M Y, h:i A') : null,
+            'quality_status' => $student->fingerprint_quality ? 
+                ($student->fingerprint_quality >= 80 ? 'Excellent' : 
+                 ($student->fingerprint_quality >= 70 ? 'Good' : 'Acceptable')) : null,
+        ]
+    ];
+
+    // Include biometric data if requested
+    if ($request->include_biometric_data && $student->fingerprint_template) {
+        $data['biometric_data'] = [
+            'fingerprint_template' => $student->fingerprint_template,
+            'fingerprint_image_url' => $student->fingerprint_image ? 
+                asset('storage/' . $student->fingerprint_image) : null,
         ];
+    }
 
-        // Include biometric data if requested (for Windows app)
-        if ($request->include_biometric_data && $student->fingerprint_template) {
-            $data['biometric_data'] = [
-                'fingerprint_template' => $student->fingerprint_template,
-                'fingerprint_image_url' => $student->fingerprint_image ? 
-                    asset('storage/' . $student->fingerprint_image) : null,
-            ];
-        }
-
-        return $data;
-    });
+    return $data;
+});
 
     return response()->json([
         'success' => true,
-        'data' => $studentsData,
-        'pagination' => [
-            'current_page' => $students->currentPage(),
-            'last_page' => $students->lastPage(),
-            'per_page' => $students->perPage(),
-            'total' => $students->total(),
-            'from' => $students->firstItem(),
-            'to' => $students->lastItem(),
-        ],
+        'count' => $studentsData->count(), // ✅ Total count
+        'students' => $studentsData, // ✅ Changed from 'data' to 'students'
         'summary' => [
-            'total_students' => $students->total(),
+            'total_students' => $studentsData->count(),
             'students_with_fingerprints' => $studentsData->where('biometric_status.has_fingerprint', true)->count(),
             'students_with_photos' => $studentsData->where('test_photo_captured', true)->count(),
         ]

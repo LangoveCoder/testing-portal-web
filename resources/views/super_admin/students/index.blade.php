@@ -3,23 +3,29 @@
 @section('title', 'Student Management')
 
 @section('content')
-<div class="min-h-screen bg-gray-100 dark:bg-dark-900">
+<div class="min-h-screen bg-gray-50 dark:bg-dark-900">
     <!-- Top Navigation Bar -->
-    <nav class="bg-blue-600 dark:bg-blue-700 text-white shadow-lg">
+    <nav class="sticky top-0 z-50 bg-white/80 dark:bg-dark-800/80 backdrop-blur-md border-b border-gray-200 dark:border-dark-700">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center space-x-4">
-                    <a href="{{ route('super-admin.dashboard') }}" class="text-white hover:text-gray-200 dark:hover:text-gray-300">
-                        ← Back to Dashboard
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('super-admin.dashboard') }}" class="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                        <span class="material-icons-outlined text-xl mr-2">arrow_back</span>
+                        Dashboard
                     </a>
-                    <h1 class="text-xl font-bold">Student Management</h1>
+                    <div class="h-6 w-px bg-gray-300 dark:bg-dark-700"></div>
+                    <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Student Management</h1>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <span>{{ Auth::guard('super_admin')->user()->name }}</span>
+                <div class="flex items-center gap-4">
+                    <div class="hidden md:flex flex-col items-end mr-2">
+                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ Auth::guard('super_admin')->user()->name }}</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Super Admin</span>
+                    </div>
                     <form method="POST" action="{{ route('super-admin.logout') }}">
                         @csrf
-                        <button type="submit" class="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 px-4 py-2 rounded transition-colors">
-                            Logout
+                        <button type="submit" class="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors border border-red-100 dark:border-red-900/50">
+                            <span class="material-icons-outlined text-lg">logout</span>
+                            <span>Logout</span>
                         </button>
                     </form>
                 </div>

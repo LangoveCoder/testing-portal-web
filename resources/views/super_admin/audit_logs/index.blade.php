@@ -3,23 +3,29 @@
 @section('title', 'Audit Logs')
 
 @section('content')
-<div class="min-h-screen bg-gray-100 dark:bg-dark-900">
+<div class="min-h-screen bg-gray-50 dark:bg-dark-900">
     <!-- Top Navigation Bar -->
-    <nav class="bg-blue-600 dark:bg-blue-700 text-white shadow-lg">
+    <nav class="sticky top-0 z-50 bg-white/80 dark:bg-dark-800/80 backdrop-blur-md border-b border-gray-200 dark:border-dark-700">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center space-x-4">
-                    <a href="{{ route('super-admin.dashboard') }}" class="text-white hover:text-gray-200">
-                        ← Back to Dashboard
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('super-admin.dashboard') }}" class="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                        <span class="material-icons-outlined text-xl mr-2">arrow_back</span>
+                        Dashboard
                     </a>
-                    <h1 class="text-xl font-bold">Audit Logs</h1>
+                    <div class="h-6 w-px bg-gray-300 dark:bg-dark-700"></div>
+                    <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Audit Logs</h1>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <span>{{ Auth::guard('super_admin')->user()->name }}</span>
+                <div class="flex items-center gap-4">
+                    <div class="hidden md:flex flex-col items-end mr-2">
+                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ Auth::guard('super_admin')->user()->name }}</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Super Admin</span>
+                    </div>
                     <form method="POST" action="{{ route('super-admin.logout') }}">
                         @csrf
-                        <button type="submit" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">
-                            Logout
+                        <button type="submit" class="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors border border-red-100 dark:border-red-900/50">
+                            <span class="material-icons-outlined text-lg">logout</span>
+                            <span>Logout</span>
                         </button>
                     </form>
                 </div>
@@ -27,26 +33,31 @@
         </div>
     </nav>
 
-    <!-- Success/Error Messages -->
-    @if(session('success'))
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-                {{ session('success') }}
-            </div>
-        </div>
-    @endif
-
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <main class="flex-grow py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        
+        <!-- Success/Error Messages -->
+        @if(session('success'))
+            <div class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 animate-fade-in">
+                <div class="flex items-center">
+                    <span class="material-icons-outlined text-green-600 dark:text-green-400 mr-3">check_circle</span>
+                    <p class="text-green-800 dark:text-green-200 font-medium">{{ session('success') }}</p>
+                </div>
+            </div>
+        @endif
+
+        <!-- Header Section -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white">System Audit Logs</h2>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">Monitor system activities and user actions</p>
+        </div>
         
         <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white rounded-lg shadow p-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white dark:bg-dark-800 rounded-2xl shadow-lg border border-gray-200 dark:border-dark-700 p-6">
                 <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
-                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
+                    <div class="flex-shrink-0 bg-blue-100 dark:bg-blue-900/30 rounded-xl p-3">
+                        <span class="material-icons-outlined text-2xl text-blue-600 dark:text-blue-400">description</span>
                     </div>
                     <div class="ml-5">
                         <p class="text-sm font-medium text-gray-500">Total Logs</p>

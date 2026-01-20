@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\College;
 use App\Models\Test;
 use App\Models\Student;
+use App\Models\TestDistrict;
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,8 +52,11 @@ class BulkUploadController extends Controller
             'test_id' => 'required|exists:tests,id',
         ]);
 
-        $college = College::with('testDistricts')->findOrFail($request->college_id);
+        $college = College::findOrFail($request->college_id);
         $test = Test::findOrFail($request->test_id);
+
+        // Get test districts from test_districts table (old system)
+        $testDistricts = TestDistrict::where('college_id', $college->id)->get();
 
         // Create Excel template
         $spreadsheet = new Spreadsheet();
@@ -84,21 +88,18 @@ class BulkUploadController extends Controller
         $sampleData = [
             'Ali Ahmed', 'Ahmed Khan', '4210112345678', '4210198765432',
             'Male', 'Islam', '15/01/2005', 'Balochistan', 'Quetta Division', 'Quetta',
-            'House 123, Street 5, Area ABC', $college->testDistricts->first()->district ?? 'Quetta',
+            'House 123, Street 5, Area ABC', $testDistricts->first()->district ?? 'Quetta',
             '4210112345678.jpg'
         ];
         $sheet->fromArray($sampleData, null, 'A2');
 
         // ========== FORMAT DATE COLUMN AS TEXT ==========
-        // This is CRITICAL to prevent Excel from converting dates to serial numbers
         $sheet->getStyle('G:G')->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
-        
-        // Set sample date as text explicitly
         $sheet->setCellValueExplicit('G2', '15/01/2005', \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
 
         // ========== CREATE DATA VALIDATION (DROPDOWNS) ==========
         
-        // Gender Dropdown (Column E) - Rows 2 to 1000
+        // Gender Dropdown
         for ($row = 2; $row <= 1000; $row++) {
             $validation = $sheet->getCell('E' . $row)->getDataValidation();
             $validation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
@@ -114,7 +115,7 @@ class BulkUploadController extends Controller
             $validation->setFormula1('"Male,Female"');
         }
 
-        // Religion Dropdown (Column F) - Rows 2 to 1000
+        // Religion Dropdown
         $religions = ['Islam', 'Christianity', 'Hinduism', 'Sikhism', 'Buddhism', 'Other'];
         for ($row = 2; $row <= 1000; $row++) {
             $validation = $sheet->getCell('F' . $row)->getDataValidation();
@@ -131,7 +132,7 @@ class BulkUploadController extends Controller
             $validation->setFormula1('"' . implode(',', $religions) . '"');
         }
 
-        // Province Dropdown (Column H)
+        // Province Dropdown
         $provinces = ['Balochistan', 'Punjab', 'Sindh', 'Khyber Pakhtunkhwa', 'Gilgit-Baltistan', 'Azad Kashmir'];
         for ($row = 2; $row <= 1000; $row++) {
             $validation = $sheet->getCell('H' . $row)->getDataValidation();
@@ -148,7 +149,7 @@ class BulkUploadController extends Controller
             $validation->setFormula1('"' . implode(',', $provinces) . '"');
         }
 
-        // Division Dropdown (Column I) - Balochistan Divisions
+        // Division Dropdown
         $divisions = [
             'Quetta Division', 'Kalat Division', 'Makran Division', 
             'Nasirabad Division', 'Sibi Division', 'Zhob Division', 'Rakhshan Division', 'Loralai Division'
@@ -168,7 +169,7 @@ class BulkUploadController extends Controller
             $validation->setFormula1('"' . implode(',', $divisions) . '"');
         }
 
-        // District Dropdown (Column J) - All Balochistan Districts
+        // District Dropdown
         $balochistanDistricts = [
             'Awaran', 'Barkhan', 'Chagai', 'Chaman', 'Dera Bugti', 'Duki', 'Gwadar', 
             'Harnai', 'Jafarabad', 'Jhal Magsi', 'Kachhi', 'Kalat', 'Kech', 'Kharan', 
@@ -176,19 +177,16 @@ class BulkUploadController extends Controller
             'Lehri', 'Loralai', 'Mastung', 'Musakhel', 'Nasirabad', 'Nushki', 
             'Panjgur', 'Pishin', 'Quetta', 'Sherani', 'Sibi', 'Sohbatpur', 
             'Washuk', 'Zhob', 'Ziarat', 'Punjab', 'Sindh', 'Khyber Pakhtunkhwa','Islamabad','Gilgit-Baltistan','Azad Kashmir'
-        
         ];
         
-        sort($balochistanDistricts); // Sort alphabetically
+        sort($balochistanDistricts);
         
-        // Put districts in a separate sheet for reference
         $districtSheet = $spreadsheet->createSheet();
         $districtSheet->setTitle('District_List');
         foreach ($balochistanDistricts as $index => $district) {
             $districtSheet->setCellValue('A' . ($index + 1), $district);
         }
         
-        // Apply district dropdown to main sheet
         for ($row = 2; $row <= 1000; $row++) {
             $validation = $sheet->getCell('J' . $row)->getDataValidation();
             $validation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
@@ -204,8 +202,8 @@ class BulkUploadController extends Controller
             $validation->setFormula1('District_List!$A$1:$A$' . count($balochistanDistricts));
         }
 
-        // Test District Dropdown (Column L) - College's assigned districts
-        $testDistrictNames = $college->testDistricts->pluck('district')->toArray();
+        // Test District Dropdown
+        $testDistrictNames = $testDistricts->pluck('district')->toArray();
         if (!empty($testDistrictNames)) {
             for ($row = 2; $row <= 1000; $row++) {
                 $validation = $sheet->getCell('L' . $row)->getDataValidation();
@@ -228,7 +226,7 @@ class BulkUploadController extends Controller
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
-        // Add cell comments for guidance
+        // Add cell comments
         $sheet->getComment('E2')->getText()->createTextRun('Click to see dropdown: Male or Female');
         $sheet->getComment('F2')->getText()->createTextRun('Click to see dropdown: Select religion');
         $sheet->getComment('G2')->getText()->createTextRun('Format: DD/MM/YYYY (e.g., 15/01/2005)');
@@ -317,14 +315,13 @@ class BulkUploadController extends Controller
 
         $instructions[] = [''];
         $instructions[] = ['AVAILABLE TEST DISTRICTS FOR THIS COLLEGE:'];
-        foreach ($college->testDistricts as $district) {
+        foreach ($testDistricts as $district) {
             $instructions[] = ['  • ' . $district->district . ', ' . $district->province];
         }
 
         $instructionsSheet->fromArray($instructions, null, 'A1');
         $instructionsSheet->getColumnDimension('A')->setWidth(100);
 
-        // Set active sheet back to Template
         $spreadsheet->setActiveSheetIndex(0);
 
         // Create temp file
@@ -338,7 +335,7 @@ class BulkUploadController extends Controller
         $writer = new Xlsx($spreadsheet);
         $writer->save($tempPath);
 
-        // Create ZIP with template and empty pictures folder
+        // Create ZIP
         $zipFilename = $college->code . '_upload_template.zip';
         $zipPath = storage_path('app/temp/' . $zipFilename);
 
@@ -347,7 +344,6 @@ class BulkUploadController extends Controller
             $zip->addFile($tempPath, 'students.xlsx');
             $zip->addEmptyDir('pictures');
             
-            // Add instructions text file
             $instructionsText = "STUDENT BULK UPLOAD INSTRUCTIONS\n\n";
             $instructionsText .= "College: {$college->name}\n";
             $instructionsText .= "Test: {$test->test_date->format('d M Y')}\n\n";
@@ -370,7 +366,6 @@ class BulkUploadController extends Controller
             $zip->close();
         }
 
-        // Clean up temp Excel file
         unlink($tempPath);
 
         return response()->download($zipPath, $zipFilename)->deleteFileAfterSend(true);
@@ -384,14 +379,13 @@ class BulkUploadController extends Controller
         $request->validate([
             'college_id' => 'required|exists:colleges,id',
             'test_id' => 'required|exists:tests,id',
-            'upload_file' => 'required|file|mimes:zip|max:102400', // 100MB max
+            'upload_file' => 'required|file|mimes:zip|max:102400',
         ]);
 
         try {
-            $college = College::with('testDistricts')->findOrFail($request->college_id);
+            $college = College::findOrFail($request->college_id);
             $test = Test::findOrFail($request->test_id);
 
-            // Extract ZIP file
             $zipFile = $request->file('upload_file');
             $extractPath = storage_path('app/temp/extract_' . time());
             
@@ -403,7 +397,6 @@ class BulkUploadController extends Controller
                 return back()->with('error', 'Failed to extract ZIP file');
             }
 
-            // Find Excel file
             $excelFile = null;
             $files = scandir($extractPath);
             foreach ($files as $file) {
@@ -418,19 +411,16 @@ class BulkUploadController extends Controller
                 return back()->with('error', 'No Excel file found in ZIP');
             }
 
-            // Check pictures folder
             $picturesPath = $extractPath . '/pictures';
             if (!file_exists($picturesPath)) {
                 $this->cleanupTemp($extractPath);
                 return back()->with('error', 'Pictures folder not found in ZIP');
             }
 
-            // Load Excel
             $spreadsheet = IOFactory::load($excelFile);
             $sheet = $spreadsheet->getActiveSheet();
             $rows = $sheet->toArray();
 
-            // Remove header
             array_shift($rows);
 
             $validStudents = [];
@@ -439,7 +429,6 @@ class BulkUploadController extends Controller
             foreach ($rows as $index => $row) {
                 $rowNumber = $index + 2;
 
-                // Skip empty rows
                 if (empty(array_filter($row))) {
                     continue;
                 }
@@ -453,7 +442,6 @@ class BulkUploadController extends Controller
                 }
             }
 
-            // Store data in session for preview
             session([
                 'bulk_upload_valid' => $validStudents,
                 'bulk_upload_errors' => $errors,
@@ -488,7 +476,7 @@ class BulkUploadController extends Controller
     }
 
    /**
-     * Import valid students - FIXED VERSION
+     * Import valid students
      */
     public function import(Request $request)
     {
@@ -511,7 +499,6 @@ class BulkUploadController extends Controller
             
             foreach ($validStudents as $index => $studentData) {
                 try {
-                    // Move picture to storage
                     $picturePath = null;
                     if (isset($studentData['temp_picture_path']) && file_exists($studentData['temp_picture_path'])) {
                         $filename = basename($studentData['temp_picture_path']);
@@ -519,15 +506,12 @@ class BulkUploadController extends Controller
                         Storage::disk('public')->put($picturePath, file_get_contents($studentData['temp_picture_path']));
                     }
 
-                    // Generate UNIQUE registration ID with microseconds
                     $registrationId = 'REG' . time() . substr(microtime(), 2, 6) . rand(100, 999);
                     
-                    // Ensure uniqueness
                     while (Student::where('registration_id', $registrationId)->exists()) {
                         $registrationId = 'REG' . time() . substr(microtime(), 2, 6) . rand(100, 999);
                     }
 
-                    // Create student with explicit field mapping
                     $student = Student::create([
                         'test_id' => $test->id,
                         'test_district_id' => $studentData['test_district_id'],
@@ -544,7 +528,6 @@ class BulkUploadController extends Controller
                         'address' => $studentData['address'],
                         'picture' => $picturePath,
                         'registration_id' => $registrationId,
-                        // Roll number fields are null initially
                         'roll_number' => null,
                         'book_color' => null,
                         'hall_number' => null,
@@ -571,9 +554,7 @@ class BulkUploadController extends Controller
                 }
             }
 
-            // Only commit if at least one student was created successfully
             if ($successCount > 0) {
-                // Log the action
                 AuditLog::logAction(
                     'super_admin',
                     Auth::guard('super_admin')->id(),
@@ -587,7 +568,6 @@ class BulkUploadController extends Controller
 
                 DB::commit();
                 
-                // Cleanup
                 $this->cleanupTemp($extractPath);
                 session()->forget(['bulk_upload_valid', 'bulk_upload_errors', 'bulk_upload_college', 'bulk_upload_test', 'bulk_upload_extract_path']);
 
@@ -610,7 +590,6 @@ class BulkUploadController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
-            // Detailed error logging
             \Log::error('Bulk import transaction error: ' . $e->getMessage());
             \Log::error('Stack trace: ' . $e->getTraceAsString());
             
@@ -652,21 +631,20 @@ class BulkUploadController extends Controller
     }
 
     /**
-     * Validate student row - COMPLETELY FIXED VERSION
+     * Validate student row - FIXED VERSION
      */
     private function validateStudentRow($row, $college, $test, $picturesPath, $rowNumber)
     {
         $errors = [];
         $data = [];
 
-        // Extract data - TRIM ALL STRINGS PROPERLY
         $name = isset($row[0]) ? trim($row[0]) : '';
         $fatherName = isset($row[1]) ? trim($row[1]) : '';
         $cnic = isset($row[2]) ? trim($row[2]) : '';
         $fatherCnic = isset($row[3]) ? trim($row[3]) : '';
         $gender = isset($row[4]) ? trim($row[4]) : '';
         $religion = isset($row[5]) ? trim($row[5]) : '';
-        $dob = isset($row[6]) ? $row[6] : ''; // Keep original for date parsing
+        $dob = isset($row[6]) ? $row[6] : '';
         $province = isset($row[7]) ? trim($row[7]) : '';
         $division = isset($row[8]) ? trim($row[8]) : '';
         $district = isset($row[9]) ? trim($row[9]) : '';
@@ -674,69 +652,34 @@ class BulkUploadController extends Controller
         $testDistrict = isset($row[11]) ? trim($row[11]) : '';
         $pictureFilename = isset($row[12]) ? trim($row[12]) : '';
 
-        // ========== VALIDATE REQUIRED FIELDS ==========
-        if (empty($name)) {
-            $errors[] = [$rowNumber, 'Name', 'Required'];
-        }
+        // Validate required fields
+        if (empty($name)) $errors[] = [$rowNumber, 'Name', 'Required'];
+        if (empty($fatherName)) $errors[] = [$rowNumber, 'Father Name', 'Required'];
+        if (empty($cnic)) $errors[] = [$rowNumber, 'Student CNIC', 'Required'];
+        if (empty($fatherCnic)) $errors[] = [$rowNumber, 'Father CNIC', 'Required'];
+        if (empty($gender)) $errors[] = [$rowNumber, 'Gender', 'Required'];
+        if (empty($religion)) $errors[] = [$rowNumber, 'Religion', 'Required'];
+        if (empty($dob)) $errors[] = [$rowNumber, 'Date of Birth', 'Required'];
+        if (empty($province)) $errors[] = [$rowNumber, 'Province', 'Required'];
         
-        if (empty($fatherName)) {
-            $errors[] = [$rowNumber, 'Father Name', 'Required'];
-        }
-        
-        if (empty($cnic)) {
-            $errors[] = [$rowNumber, 'Student CNIC', 'Required'];
-        }
-        
-        if (empty($fatherCnic)) {
-            $errors[] = [$rowNumber, 'Father CNIC', 'Required'];
-        }
-        
-        if (empty($gender)) {
-            $errors[] = [$rowNumber, 'Gender', 'Required'];
-        }
-        
-        if (empty($religion)) {
-            $errors[] = [$rowNumber, 'Religion', 'Required'];
-        }
-        
-        if (empty($dob)) {
-            $errors[] = [$rowNumber, 'Date of Birth', 'Required'];
-        }
-        
-        if (empty($province)) {
-            $errors[] = [$rowNumber, 'Province', 'Required'];
-        }
-        
-        // District is only required for Balochistan province
         if (empty($district)) {
             if (strtolower($province) === 'balochistan') {
                 $errors[] = [$rowNumber, 'District', 'Required for Balochistan province'];
-            }
-            // For other provinces, district is optional - set to null
-            else {
+            } else {
                 $district = null;
             }
         }
         
-        if (empty($address)) {
-            $errors[] = [$rowNumber, 'Complete Address', 'Required'];
-        }
-        
-        if (empty($testDistrict)) {
-            $errors[] = [$rowNumber, 'Test District', 'Required'];
-        }
-        
-        if (empty($pictureFilename)) {
-            $errors[] = [$rowNumber, 'Picture Filename', 'Required'];
-        }
+        if (empty($address)) $errors[] = [$rowNumber, 'Complete Address', 'Required'];
+        if (empty($testDistrict)) $errors[] = [$rowNumber, 'Test District', 'Required'];
+        if (empty($pictureFilename)) $errors[] = [$rowNumber, 'Picture Filename', 'Required'];
 
-        // ========== VALIDATE CNIC FORMAT ==========
+        // Validate CNIC format
         if (!empty($cnic)) {
             $cnicClean = preg_replace('/[^0-9]/', '', $cnic);
             if (strlen($cnicClean) != 13) {
                 $errors[] = [$rowNumber, 'Student CNIC', 'Must be exactly 13 digits (got: ' . $cnic . ')'];
             } else {
-                // Use cleaned CNIC
                 $cnic = $cnicClean;
             }
         }
@@ -750,65 +693,53 @@ class BulkUploadController extends Controller
             }
         }
 
-        // ========== CHECK CNIC UNIQUENESS ==========
+        // Check CNIC uniqueness
         if (!empty($cnic) && strlen($cnic) == 13) {
             if (Student::where('cnic', $cnic)->exists()) {
                 $errors[] = [$rowNumber, 'Student CNIC', 'Already registered in system'];
             }
         }
 
-        // ========== VALIDATE GENDER ==========
+        // Validate gender
         if (!empty($gender)) {
             if (!in_array($gender, ['Male', 'Female'])) {
                 $errors[] = [$rowNumber, 'Gender', 'Must be "Male" or "Female" (got: ' . $gender . ')'];
             }
         }
 
-        // ========== VALIDATE GENDER POLICY (FIXED) ==========
+        // Validate gender policy
         if (!empty($gender) && in_array($gender, ['Male', 'Female'])) {
             $collegePolicy = $college->gender_policy;
             
-            // Handle different policy formats
             if (stripos($collegePolicy, 'Male') !== false && stripos($collegePolicy, 'Female') === false) {
-                // College is "Male" or "Male Only"
                 if ($gender != 'Male') {
                     $errors[] = [$rowNumber, 'Gender', 'College only accepts Male students'];
                 }
             } 
             else if (stripos($collegePolicy, 'Female') !== false && stripos($collegePolicy, 'Male') === false) {
-                // College is "Female" or "Female Only"
                 if ($gender != 'Female') {
                     $errors[] = [$rowNumber, 'Gender', 'College only accepts Female students'];
                 }
             }
-            // 'Both' policy accepts all
         }
 
-        // ========== VALIDATE DATE OF BIRTH (ULTIMATE FIX) ==========
+        // Validate date of birth
         if (!empty($dob)) {
             try {
                 $dateOfBirth = null;
                 $originalDob = $dob;
                 
-                // Strategy: Convert everything to string first, then parse as DD/MM/YYYY
                 $dobString = '';
                 
-                // If numeric (Excel serial date), convert to string date
                 if (is_numeric($dob) && $dob > 0 && $dob < 100000) {
-                    // Manual Excel serial date conversion
-                    // Excel epoch: December 30, 1899
                     $excelEpoch = Carbon::create(1899, 12, 30);
                     $calculatedDate = $excelEpoch->copy()->addDays(intval($dob));
-                    
-                    // Convert to DD/MM/YYYY string
                     $dobString = $calculatedDate->format('d/m/Y');
                     $dateOfBirth = $calculatedDate;
                 }
-                // If already a string
                 else if (is_string($dob)) {
                     $dobString = trim($dob);
                     
-                    // Parse DD/MM/YYYY or D/M/YYYY
                     if (strpos($dobString, '/') !== false) {
                         $parts = explode('/', $dobString);
                         
@@ -817,12 +748,10 @@ class BulkUploadController extends Controller
                             $month = (int) $parts[1];
                             $year = (int) $parts[2];
                             
-                            // Handle 2-digit years
                             if ($year < 100) {
                                 $year = $year < 50 ? 2000 + $year : 1900 + $year;
                             }
                             
-                            // Validate using checkdate
                             if (checkdate($month, $day, $year)) {
                                 $dateOfBirth = Carbon::create($year, $month, $day);
                             } else {
@@ -830,7 +759,6 @@ class BulkUploadController extends Controller
                             }
                         }
                     }
-                    // Parse YYYY-MM-DD
                     else if (strpos($dobString, '-') !== false) {
                         $parts = explode('-', $dobString);
                         
@@ -845,16 +773,13 @@ class BulkUploadController extends Controller
                         }
                     }
                 }
-                // DateTime object
                 else if ($dob instanceof \DateTime) {
                     $dateOfBirth = Carbon::instance($dob);
                 }
                 
-                // Validate parsed date
                 if ($dateOfBirth && $dateOfBirth instanceof Carbon) {
                     $currentYear = date('Y');
                     
-                    // Basic validation
                     if ($dateOfBirth->year < 1950 || $dateOfBirth->year > $currentYear) {
                         $errors[] = [$rowNumber, 'Date of Birth', 'Year must be between 1950 and ' . $currentYear . '. Got: ' . $dateOfBirth->format('d/m/Y')];
                     }
@@ -865,12 +790,10 @@ class BulkUploadController extends Controller
                         $errors[] = [$rowNumber, 'Date of Birth', 'Student too young (less than 5 years): ' . $dateOfBirth->format('d/m/Y')];
                     }
                     else {
-                        // Calculate age
                         $registrationDate = $college->registration_start_date 
                             ? Carbon::parse($college->registration_start_date) 
                             : Carbon::now();
                         
-                        // Double-check birth date is before registration date
                         if ($dateOfBirth->greaterThan($registrationDate)) {
                             $errors[] = [$rowNumber, 'Date of Birth', 
                                 'Birth date (' . $dateOfBirth->format('d/m/Y') . ') cannot be after registration date (' . $registrationDate->format('d/m/Y') . ')'
@@ -878,7 +801,6 @@ class BulkUploadController extends Controller
                         } else {
                             $age = $dateOfBirth->diffInYears($registrationDate);
                             
-                            // Age policy validation
                             if ($college->min_age && $age < $college->min_age) {
                                 $errors[] = [$rowNumber, 'Age', 
                                     "Too young. Minimum: {$college->min_age} years, student is {$age} years old. " .
@@ -905,14 +827,16 @@ class BulkUploadController extends Controller
             }
         }
 
-        // ========== VALIDATE TEST DISTRICT ==========
+        // ========== VALIDATE TEST DISTRICT (FIXED) ==========
         if (!empty($testDistrict)) {
-            $testDistrictRecord = $college->testDistricts()
+            // Query from test_districts table (old system)
+            $testDistrictRecord = TestDistrict::where('college_id', $college->id)
                 ->where('district', $testDistrict)
                 ->first();
                 
             if (!$testDistrictRecord) {
-                $availableDistricts = $college->testDistricts->pluck('district')->toArray();
+                $availableDistricts = TestDistrict::where('college_id', $college->id)
+                    ->pluck('district')->toArray();
                 $errors[] = [$rowNumber, 'Test District', 
                     "'{$testDistrict}' not available for this college. Available: " . implode(', ', $availableDistricts)
                 ];
@@ -921,19 +845,17 @@ class BulkUploadController extends Controller
             }
         }
 
-        // ========== VALIDATE PICTURE FILE ==========
+        // Validate picture file
         if (!empty($pictureFilename)) {
             $picturePath = $picturesPath . '/' . $pictureFilename;
             
             if (!file_exists($picturePath)) {
                 $errors[] = [$rowNumber, 'Picture', "File not found in pictures folder: {$pictureFilename}"];
             } else {
-                // Validate file is an image
                 $imageInfo = @getimagesize($picturePath);
                 if ($imageInfo === false) {
                     $errors[] = [$rowNumber, 'Picture', "{$pictureFilename} is not a valid image file"];
                 } else {
-                    // Check file size (max 2MB)
                     $fileSize = filesize($picturePath);
                     if ($fileSize > 2 * 1024 * 1024) {
                         $errors[] = [$rowNumber, 'Picture', "{$pictureFilename} is too large (max 2MB)"];
@@ -944,7 +866,7 @@ class BulkUploadController extends Controller
             }
         }
 
-        // ========== IF NO ERRORS, COMPILE DATA ==========
+        // If no errors, compile data
         if (empty($errors)) {
             $data = array_merge($data, [
                 'name' => $name,
@@ -954,7 +876,7 @@ class BulkUploadController extends Controller
                 'gender' => $gender,
                 'religion' => $religion,
                 'province' => $province,
-                'division' => $division ?: null, // Allow empty division
+                'division' => $division ?: null,
                 'district' => $district,
                 'address' => $address,
             ]);

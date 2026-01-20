@@ -9,23 +9,29 @@
 @endpush
 
 @section('content')
-<div class="min-h-screen bg-gray-100 dark:bg-dark-900">
+<div class="min-h-screen bg-gray-50 dark:bg-dark-900">
     <!-- Top Navigation Bar -->
-    <nav class="bg-green-600 dark:bg-green-700 text-white shadow-lg">
+    <nav class="sticky top-0 z-50 bg-white/80 dark:bg-dark-800/80 backdrop-blur-md border-b border-gray-200 dark:border-dark-700">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center space-x-4">
-                    <a href="{{ route('college.dashboard') }}" class="text-white hover:text-gray-200">
-                        ← Back to Dashboard
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('college.dashboard') }}" class="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                        <span class="material-icons-outlined text-xl mr-2">arrow_back</span>
+                        Dashboard
                     </a>
-                    <h1 class="text-xl font-bold">Fingerprint Verification (Test Day)</h1>
+                    <div class="h-6 w-px bg-gray-300 dark:bg-dark-700"></div>
+                    <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Fingerprint Verification (Test Day)</h1>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <span>{{ Auth::guard('college')->user()->name }}</span>
+                <div class="flex items-center gap-4">
+                    <div class="hidden md:flex flex-col items-end mr-2">
+                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ Auth::guard('college')->user()->name }}</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">College Admin</span>
+                    </div>
                     <form method="POST" action="{{ route('college.logout') }}">
                         @csrf
-                        <button type="submit" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">
-                            Logout
+                        <button type="submit" class="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors border border-red-100 dark:border-red-900/50">
+                            <span class="material-icons-outlined text-lg">logout</span>
+                            <span>Logout</span>
                         </button>
                     </form>
                 </div>
@@ -34,41 +40,50 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <main class="flex-grow py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         
-        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="bg-white dark:bg-dark-800 rounded-2xl shadow-lg border border-gray-200 dark:border-dark-700 overflow-hidden">
             <div class="p-6 bg-gradient-to-r from-green-500 to-green-600">
-                <h2 class="text-2xl font-bold text-white">👆 Fingerprint Verification</h2>
-                <p class="text-green-100 mt-1">Verify student identity on test day</p>
+                <div class="flex items-center">
+                    <span class="material-icons-outlined text-3xl text-white mr-4">fingerprint</span>
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Fingerprint Verification</h2>
+                        <p class="text-green-100 mt-1">Verify student identity on test day</p>
+                    </div>
+                </div>
             </div>
 
             <div class="p-6">
                 
                 <!-- Scanner Status Card -->
-                <div class="bg-gradient-to-r from-green-50 to-teal-50 border-2 border-green-200 rounded-lg p-4 mb-6">
+                <div class="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 border-2 border-green-200 dark:border-green-700 rounded-xl p-4 mb-6">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <div id="scanner_indicator" class="w-4 h-4 rounded-full bg-gray-400"></div>
                             <div>
-                                <p id="scanner_status" class="text-sm font-bold text-gray-800">Scanner: Initializing...</p>
-                                <p id="scanner_device" class="text-xs text-gray-600">Detecting device...</p>
+                                <p id="scanner_status" class="text-sm font-bold text-gray-800 dark:text-gray-200">Scanner: Initializing...</p>
+                                <p id="scanner_device" class="text-xs text-gray-600 dark:text-gray-400">Detecting device...</p>
                             </div>
                         </div>
                         <button onclick="troubleshootScanner()" id="troubleshoot_btn" disabled
-                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-semibold disabled:bg-gray-300 disabled:cursor-not-allowed">
-                            🔧 Troubleshoot Scanner
+                                class="px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white rounded-lg text-sm font-semibold disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+                            <span class="material-icons-outlined text-lg mr-1">build</span>
+                            Troubleshoot Scanner
                         </button>
                     </div>
                 </div>
 
                 <!-- Search Section -->
                 <div class="mb-8">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">🔍 Load Student</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                        <span class="material-icons-outlined text-xl mr-2">search</span>
+                        Load Student
+                    </h3>
                     <div class="flex space-x-3">
                         <input type="text" id="search_term" placeholder="Enter Roll Number"
-                               class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                               class="flex-1 px-4 py-3 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                         <button onclick="loadStudent()" 
-                                class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold">
+                                class="px-6 py-3 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white rounded-lg font-semibold transition-colors">
                             Load Student
                         </button>
                     </div>
@@ -77,41 +92,44 @@
 
                 <!-- Student Information (Hidden by default) -->
                 <div id="student_info" class="hidden">
-                    <div class="border-t pt-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">👤 Student Verification Details</h3>
+                    <div class="border-t border-gray-200 dark:border-dark-700 pt-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                            <span class="material-icons-outlined text-xl mr-2">person</span>
+                            Student Verification Details
+                        </h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                             <!-- Registration Photo -->
                             <div class="col-span-1">
-                                <div class="border border-gray-300 rounded-lg p-3 text-center bg-gray-50">
-                                    <p class="text-sm font-medium text-gray-700 mb-2">Registration Photo</p>
+                                <div class="border border-gray-300 dark:border-dark-600 rounded-xl p-3 text-center bg-gray-50 dark:bg-dark-700">
+                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Registration Photo</p>
                                     <img id="registration_photo" src="" alt="Registration Photo" 
                                          onclick="zoomImage(this)" 
-                                         class="w-full h-48 object-cover rounded border-2 border-gray-300 cursor-pointer hover:border-green-500 transition">
-                                    <p class="text-xs text-gray-500 mt-1">Click to zoom</p>
+                                         class="w-full h-48 object-cover rounded border-2 border-gray-300 dark:border-dark-600 cursor-pointer hover:border-green-500 transition">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Click to zoom</p>
                                 </div>
                             </div>
 
                             <!-- Test Photo (from Android) -->
                             <div class="col-span-1">
-                                <div class="border border-gray-300 rounded-lg p-3 text-center bg-gray-50">
-                                    <p class="text-sm font-medium text-gray-700 mb-2">Test Photo</p>
+                                <div class="border border-gray-300 dark:border-dark-600 rounded-xl p-3 text-center bg-gray-50 dark:bg-dark-700">
+                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Test Photo</p>
                                     <img id="test_photo" src="" alt="Test Photo" 
                                          onclick="zoomImage(this)"
-                                         class="w-full h-48 object-cover rounded border-2 border-gray-300 cursor-pointer hover:border-green-500 transition">
-                                    <p class="text-xs text-gray-500 mt-1">Click to zoom</p>
+                                         class="w-full h-48 object-cover rounded border-2 border-gray-300 dark:border-dark-600 cursor-pointer hover:border-green-500 transition">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Click to zoom</p>
                                     <p id="test_photo_status" class="text-xs mt-1"></p>
                                 </div>
                             </div>
 
                             <!-- Saved Fingerprint -->
                             <div class="col-span-1">
-                                <div class="border border-gray-300 rounded-lg p-3 text-center bg-gray-50">
-                                    <p class="text-sm font-medium text-gray-700 mb-2">Saved Fingerprint</p>
+                                <div class="border border-gray-300 dark:border-dark-600 rounded-xl p-3 text-center bg-gray-50 dark:bg-dark-700">
+                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Saved Fingerprint</p>
                                     <img id="saved_fingerprint" src="" alt="Saved Fingerprint" 
                                          onclick="zoomImage(this)"
-                                         class="w-full h-48 object-contain rounded border-2 border-gray-300 cursor-pointer hover:border-green-500 transition bg-white">
-                                    <p class="text-xs text-gray-500 mt-1">Click to zoom</p>
+                                         class="w-full h-48 object-contain rounded border-2 border-gray-300 dark:border-dark-600 cursor-pointer hover:border-green-500 transition bg-white dark:bg-dark-800">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Click to zoom</p>
                                     <p id="fingerprint_status" class="text-xs mt-1"></p>
                                 </div>
                             </div>
@@ -120,37 +138,43 @@
                             <div class="col-span-1">
                                 <div class="grid grid-cols-1 gap-3">
                                     <div>
-                                        <p class="text-xs text-gray-600">Name</p>
-                                        <p id="student_name" class="font-semibold text-gray-900 text-sm"></p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400">Name</p>
+                                        <p id="student_name" class="font-semibold text-gray-900 dark:text-gray-100 text-sm"></p>
                                     </div>
                                     <div>
-                                        <p class="text-xs text-gray-600">Father Name</p>
-                                        <p id="student_father" class="font-semibold text-gray-900 text-sm"></p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400">Father Name</p>
+                                        <p id="student_father" class="font-semibold text-gray-900 dark:text-gray-100 text-sm"></p>
                                     </div>
                                     <div>
-                                        <p class="text-xs text-gray-600">Roll Number</p>
-                                        <p id="student_roll" class="font-semibold text-green-600 text-lg"></p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400">Roll Number</p>
+                                        <p id="student_roll" class="font-semibold text-green-600 dark:text-green-400 text-lg"></p>
                                     </div>
                                     <div>
-                                        <p class="text-xs text-gray-600">CNIC</p>
-                                        <p id="student_cnic" class="font-semibold text-gray-900 text-sm"></p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400">CNIC</p>
+                                        <p id="student_cnic" class="font-semibold text-gray-900 dark:text-gray-100 text-sm"></p>
                                     </div>
                                     <div>
-                                        <p class="text-xs text-gray-600">Hall / Zone / Row / Seat</p>
-                                        <p id="student_seating" class="font-semibold text-gray-900 text-sm"></p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400">Hall / Zone / Row / Seat</p>
+                                        <p id="student_seating" class="font-semibold text-gray-900 dark:text-gray-100 text-sm"></p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Verification Section -->
-                        <div class="border-t pt-6">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">🔍 Live Verification</h3>
+                        <div class="border-t border-gray-200 dark:border-dark-700 pt-6">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                                <span class="material-icons-outlined text-xl mr-2">verified</span>
+                                Live Verification
+                            </h3>
                             
                             <!-- Instructions -->
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                                <p class="text-sm text-blue-800">
-                                    <strong>📋 Verification Steps:</strong><br>
+                            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-4">
+                                <p class="text-sm text-blue-800 dark:text-blue-200">
+                                    <strong class="flex items-center mb-2">
+                                        <span class="material-icons-outlined text-lg mr-1">checklist</span>
+                                        Verification Steps:
+                                    </strong>
                                     1. Ask student to place finger on scanner<br>
                                     2. Click "Verify Fingerprint" button<br>
                                     3. Wait for match result<br>
@@ -161,8 +185,9 @@
 
                             <!-- Verify Button -->
                             <button onclick="verifyFingerprint()" id="verify_btn" disabled
-                                    class="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-lg disabled:bg-gray-300 disabled:cursor-not-allowed mb-4">
-                                🔍 Verify Fingerprint
+                                    class="w-full px-4 py-3 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white rounded-lg font-semibold text-lg disabled:bg-gray-300 disabled:cursor-not-allowed mb-4 transition-colors flex items-center justify-center">
+                                <span class="material-icons-outlined text-xl mr-2">fingerprint</span>
+                                Verify Fingerprint
                             </button>
 
                             <!-- Verification Result -->
@@ -176,13 +201,16 @@
         </div>
 
         <!-- Note -->
-        <div class="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <p class="text-sm text-yellow-800">
-                <strong>⚠️ Test Day Protocol:</strong> Verify each student's fingerprint before allowing entry to examination hall. 
-                Log all verification attempts for audit purposes.
+        <div class="mt-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4">
+            <p class="text-sm text-yellow-800 dark:text-yellow-200 flex items-start">
+                <span class="material-icons-outlined text-lg mr-2 mt-0.5">warning</span>
+                <span>
+                    <strong>Test Day Protocol:</strong> Verify each student's fingerprint before allowing entry to examination hall. 
+                    Log all verification attempts for audit purposes.
+                </span>
             </p>
         </div>
-    </div>
+    </main>
 </div>
 
 <!-- Image Zoom Modal -->
